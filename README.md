@@ -165,3 +165,18 @@ blockcraft-builder/
 | ⏳ Integración de Room Database | Pendiente |
 | ⏳ Renderizado del grid 3D | Pendiente |
 | ⏳ Pruebas en dispositivos físicos | Pendiente |
+
+
+## ✅ Funcionalidades implementadas
+
+### Firebase Authentication
+
+- **Registro de usuarios** con validación en 14 pasos (nombre, email, contraseña con mayúscula, número y minúscula, confirmación)
+- **Inicio de sesión** con email y contraseña mediante Firebase Authentication
+- **Manejo de errores** de Firebase en español (correo ya registrado, contraseña incorrecta, usuario no encontrado)
+- **Persistencia de sesión** — si el usuario ya inició sesión, la app lo lleva directo a MainActivity sin pasar por Login
+- **Cierre de sesión** con redirección automática al Login
+- **Protección del Back Stack** con `FLAG_ACTIVITY_CLEAR_TASK` — el botón Atrás no regresa al Login tras autenticarse
+- **Perfil de usuario** — nombre y email del usuario autenticado visibles en MainActivity
+- **Pantalla principal** con AppBar, TabLayout (Todos / Naturaleza / Construcción) y BottomNavigationView (Inicio / Mundos / Inventario / Perfil)
+- **Tarjetas de progreso** — Bloques colocados y Horas de juego
