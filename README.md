@@ -145,12 +145,7 @@ blockcraft-builder/
 
 
 
-| Selector de Bloques | Menú de Opciones |
-|:------------------:|:----------------:|
-| `[Placeholder]` | `[Placeholder]` |
-| *Catálogo organizado por categorías* | *Exportar, guardar y ajustes* |
 
----
 
 ## 📊 Estado del Proyecto
 
