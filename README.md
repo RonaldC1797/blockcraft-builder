@@ -138,10 +138,12 @@ blockcraft-builder/
 
 > 🚧 *Las capturas de pantalla serán añadidas una vez se complete la implementación en Android Studio.*
 
-| Pantalla de Login | Editor de Construcción |
- `<img width="406" height="874" alt="Login" src="https://github.com/user-attachments/assets/6fdb49c6-4f80-4e58-9b16-9e6c6cf26f16" />` | `[Placeholder]` |
+## 📱 Capturas de Pantalla
 
-| *Listado de mundos guardados* | *Grid 3D con controles de bloque* |
+### Pantalla de Login
+<img width="406" height="874" alt="Login" src="https://github.com/user-attachments/assets/6fdb49c6-4f80-4e58-9b16-9e6c6cf26f16" />
+
+
 
 | Selector de Bloques | Menú de Opciones |
 |:------------------:|:----------------:|
