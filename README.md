@@ -2,178 +2,227 @@
 
 > **Construye sin límites. Sin conexión. Sin complicaciones.**
 
-Una aplicación Android de construcción 3D con bloques diseñada para niños, adolescentes y adultos que buscan una experiencia creativa, relajante y completamente offline.
+Aplicación Android nativa de construcción 3D con bloques, diseñada para
+usuarios de 8 a 16 años. Funciona 100% offline con Room Database.
 
 ---
 
 ## 📋 Tabla de Contenidos
-
 - [Descripción del Problema](#-descripción-del-problema)
-- [Objetivo de la Aplicación](#-objetivo-de-la-aplicación)
-- [Historias de Usuario — MVP](#-historias-de-usuario--mvp)
-- [Tecnología Utilizada](#-tecnología-utilizada)
-- [Instalación](#-instalación)
+- [Historias de Usuario](#-historias-de-usuario--mvp)
+- [Arquitectura de Datos](#-arquitectura-de-datos)
+- [Tecnologías](#️-tecnologías-utilizadas)
+- [Notificaciones](#-notificaciones-locales)
+- [Cómo probar el CRUD](#-cómo-probar-el-crud)
 - [Capturas de Pantalla](#-capturas-de-pantalla)
 - [Estado del Proyecto](#-estado-del-proyecto)
+- [Instalación](#️-instalación)
 
 ---
 
 ## 🚧 Descripción del Problema
 
-Los juegos de construcción más populares del mercado móvil, como **Minecraft** o **Roblox**, presentan barreras que frustran la experiencia de muchos usuarios:
+Los juegos de construcción más populares del mercado móvil presentan
+barreras que frustran la experiencia:
 
-- **Complejidad elevada**: curvas de aprendizaje empinadas que desalientan a jugadores nuevos o jóvenes.
-- **Dependencia de Internet**: requieren conexión constante para funcionar, lo que limita el acceso en zonas con conectividad limitada.
-- **Microtransacciones agresivas**: interrumpen la experiencia con compras que condicionan el progreso o el contenido disponible.
+- **Complejidad elevada** — curvas de aprendizaje empinadas
+- **Dependencia de Internet** — requieren conexión constante
+- **Microtransacciones agresivas** — condicionan el progreso
 
-**Blockcraft Builder** resuelve esto ofreciendo:
-
-- ✅ Un entorno **sencillo e intuitivo**, accesible desde los primeros minutos.
-- ✅ Funcionamiento **100% offline**, sin depender de servidores externos.
-- ✅ Experiencia **libre de micropagos**, completa desde el primer uso.
-- ✅ Orientado a **niños y adolescentes de 8 a 16 años**, así como a adultos que buscan una actividad creativa y relajante.
-
----
-
-## 🎯 Objetivo de la Aplicación
-
-Desarrollar una aplicación nativa de construcción 3D para Android que permita:
-
-- Colocar, rotar y eliminar bloques en un **grid tridimensional de 16×16×16**.
-- Operar de forma **completamente offline**, sin requerir conexión a Internet en ningún momento.
-- Mantener una **latencia menor a 2 segundos** en dispositivos Android de gama media.
-- Brindar una experiencia educativa y lúdica, accesible para usuarios de distintas edades y niveles de experiencia.
+**Blockcraft Builder** resuelve esto con:
+- ✅ Entorno **sencillo e intuitivo** desde los primeros minutos
+- ✅ Funcionamiento **100% offline** sin servidores externos
+- ✅ Experiencia **libre de micropagos**
+- ✅ Orientado a **niños y adolescentes de 8 a 16 años**
 
 ---
 
 ## 👤 Historias de Usuario — MVP
 
 | ID | Rol | Necesidad | Beneficio |
-|----|-----|-----------|-----------|
-| **HU-01** | Jugador | Guardar mi construcción con un nombre y recuperarla desde la pantalla de inicio | Continuar sin perder el progreso |
-| **HU-02** | Jugador joven | Deshacer la colocación del último bloque con un botón visible | Corregir errores sin reiniciar toda la construcción |
-| **HU-03** | Adulto que personaliza su construcción | Navegar los bloques organizados por categoría | Encontrar rápidamente el tipo de bloque que necesito |
-| **HU-04** | Usuario que terminó una construcción | Exportar una captura y compartirla mediante las apps instaladas en el dispositivo | Mostrar y guardar mi trabajo fácilmente |
-| **HU-05** | Jugador que busca precisión | Activar o desactivar una cuadrícula visual de referencia | Colocar bloques de forma más ordenada y precisa |
+|---|---|---|---|
+| **HU-01** | Jugador | Guardar mi construcción con un nombre y recuperarla | Continuar sin perder el progreso |
+| **HU-02** | Jugador joven | Deshacer la colocación del último bloque | Corregir errores sin reiniciar |
+| **HU-03** | Adulto creativo | Navegar bloques organizados por categoría | Encontrar rápidamente el bloque |
+| **HU-04** | Usuario creativo | Exportar y compartir una captura | Mostrar y guardar mi trabajo |
+| **HU-05** | Jugador preciso | Activar/desactivar cuadrícula visual | Colocar bloques ordenadamente |
 
 ---
 
-## 🛠️ Tecnología Utilizada
+## 📐 Arquitectura de Datos
+
+La app sigue el patrón **MVVM** con separación estricta de capas:
+
+UI (Activity / RecyclerView)
+↓ observa LiveData ↑
+ViewModel (ProyectoViewModel)
+↓ delega ↑
+Repository (ProyectoRepository)
+↓ consulta ↑
+DAO (ProyectoDao / BloqueDao)
+↓ persiste ↑
+Room Database (blockcraft_database — SQLite)
+
+
+**Regla principal:** Cada capa solo se comunica con la
+capa inmediatamente vecina. La UI nunca accede al DAO directamente.
+
+### Entidades Room
+
+| Entidad | Campos principales |
+|---|---|
+| `Proyecto` | id, nombre, tipo, bioma, fechaCreacion, cantidadBloques |
+| `Bloque` | id, proyectoId (FK), tipo, posX, posY, posZ |
+
+---
+
+## 🛠️ Tecnologías Utilizadas
 
 | Capa | Tecnología |
-|------|------------|
+|---|---|
 | **Lenguaje** | Kotlin |
+| **Arquitectura** | MVVM + Repository Pattern |
+| **Base de datos** | Room Database (SQLite) |
+| **Estado reactivo** | ViewModel + LiveData + Flow |
+| **Notificaciones** | WorkManager + NotificationCompat |
+| **Autenticación** | Firebase Authentication |
+| **UI Components** | Material Design 3 |
+| **Listas** | RecyclerView + DiffUtil |
 | **IDE** | Android Studio |
-| **Arquitectura** | MVVM (Model-View-ViewModel) |
-| **Base de datos** | Room Database |
-| **Gestión de estado** | ViewModel + LiveData |
-| **Diseño de interfaz** | Material Design 3 |
-| **Renderizado 3D** | SurfaceView / OpenGL ES |
-| **Control de versiones** | Git + GitHub |
+| **Control versiones** | Git + GitHub |
 
 ### Estructura del Proyecto
 
-```
-blockcraft-builder/
-├── app/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/blockcraft/
-│   │   │   │   ├── data/          # Room Database, DAOs, entidades
-│   │   │   │   ├── model/         # Modelos de datos
-│   │   │   │   ├── ui/            # Activities, Fragments, Adapters
-│   │   │   │   ├── viewmodel/     # ViewModels por pantalla
-│   │   │   │   └── renderer/      # Lógica de renderizado 3D
-│   │   │   └── res/               # Layouts, drawables, strings
-│   └── build.gradle
-├── README.md
-└── build.gradle
-```
+app/src/main/java/com/cacuango/blockcraft_builder/
+├── BlockcraftApp.kt          # Application class + canales de notificación
+├── data/
+│   ├── local/
+│   │   ├── dao/              # ProyectoDao, BloqueDao
+│   │   ├── database/         # AppDatabase (Room Singleton)
+│   │   └── Entity/           # Proyecto, Bloque
+│   └── repository/           # ProyectoRepository
+├── ui/
+│   ├── auth/                 # LoginActivity, RegisterActivity
+│   ├── create/               # CreateProjectActivity (crear + editar)
+│   ├── editor/               # EditorActivity (construcción 3D)
+│   ├── home/                 # MainActivity
+│   └── load/                 # LoadWorldActivity, MundoAdapter
+├── viewmodel/                # ProyectoViewModel
+└── workers/                  # RecordatorioWorker (WorkManager)
+
+
+---
+
+## 🔔 Notificaciones Locales
+
+La app no consume ninguna API REST externa. Funciona completamente
+offline. Las notificaciones se implementan con **WorkManager**:
+
+| Canal | Descripción | Frecuencia | HU |
+|---|---|---|---|
+| `canal_recordatorios` | Proyecto sin abrir en 3 días | Cada 3 días | HU-01 |
+| `canal_guardado` | Confirmación de guardado automático | Cada 5 min (activo) | HU-01 |
+| `canal_logros` | Hito de bloques alcanzado | Al superar umbral | HU-02, HU-05 |
+| `canal_exportacion` | Captura lista en galería | Inmediata | HU-04 |
+
+**¿Por qué WorkManager y no AlarmManager?**
+WorkManager respeta las restricciones de batería, sobrevive a
+reinicios del dispositivo y garantiza ejecución aunque la app esté cerrada.
+
+---
+
+## ✅ Cómo probar el CRUD
+
+### Requisitos previos
+- Android Studio Hedgehog o superior
+- Emulador con API 33+ (Pixel 9 Pro recomendado)
+- Cuenta de Firebase para el login
+
+### CREATE — Crear un proyecto
+1. Iniciar sesión con email y contraseña
+2. Tocar **"Nuevo mundo"** en la pantalla principal
+3. Escribir un nombre (mín. 3 caracteres, solo letras y números)
+4. Tocar **"Start Building"**
+5. Verificar que el proyecto aparece en **"Cargar mundo"**
+
+### READ — Ver la lista de proyectos
+1. Tocar **"Cargar mundo"** desde la pantalla principal
+2. Verificar que aparecen todos los proyectos creados
+3. Usar la **barra de búsqueda** para filtrar por nombre
+4. Usar los **chips** (Todos / Pradera / Desierto / Nieve) para filtrar
+
+### UPDATE — Editar un proyecto
+1. En **"Cargar mundo"** tocar el botón **"Cargar mundo"** de cualquier ítem
+2. Verificar que el formulario se abre con el **nombre precargado**
+3. Cambiar el nombre y tocar **"Guardar cambios"**
+4. Verificar que la lista muestra el **nombre actualizado**
+
+### DELETE — Eliminar un proyecto
+1. En **"Cargar mundo"** tocar **"Eliminar"** en cualquier ítem
+2. Verificar que aparece el **AlertDialog de confirmación**
+3. Tocar **"Eliminar"** para confirmar
+4. Verificar que aparece el **Snackbar con "Deshacer"**
+5. Tocar **"Deshacer"** para recuperar el proyecto eliminado
+
+### Probar notificaciones
+1. En la pantalla principal hacer **long press** en "Nuevo mundo"
+2. Verificar Toast: *"Notificación de prueba enviada"*
+3. Deslizar desde arriba para abrir el panel de notificaciones
+4. Verificar: **"¡Tu construcción te espera!"**
+
+---
+
+## 📱 Capturas de Pantalla
+
+| Login | Pantalla Principal | Crear Proyecto |
+|---|---|---|
+| ![Login](capturas/login.png) | ![Main](capturas/main.png) | ![Create](capturas/create.png) |
+
+| Lista de Proyectos | Confirmar Eliminación | Notificación |
+|---|---|---|
+| ![Load](capturas/load.png) | ![Delete](capturas/delete.png) | ![Notif](capturas/notif.png) |
+
+---
+
+## 📊 Estado del Proyecto
+
+[████████████████░░░░]  80% completado
+
+| Fase | Estado |
+|---|---|
+| ✅ Prototipo Figma | Completado |
+| ✅ Entorno Android Studio | Completado |
+| ✅ Firebase Authentication | Completado |
+| ✅ Room Database + DAOs | Completado |
+| ✅ CRUD completo (Proyecto) | Completado |
+| ✅ RecyclerView + Adapter | Completado |
+| ✅ Notificaciones WorkManager | Completado |
+| 🔄 Renderizado grid 3D | En progreso |
+| ⏳ Pruebas en dispositivo físico | Pendiente |
 
 ---
 
 ## ⚙️ Instalación
 
-### Requisitos Previos
-
-- **Android Studio** Hedgehog (2023.1.1) o superior
-- **JDK 17** o superior
-- **Android SDK** — API Level 26 (Android 8.0) como mínimo
-- **Git** instalado en el sistema
-
 ### Pasos
-
 1. **Clonar el repositorio**
-
-   ```bash
-   git clone https://github.com/tu-usuario/blockcraft-builder.git
-   cd blockcraft-builder
-   ```
+```bash
+git clone https://github.com/RonaldC1797/blockcraft-builder.git
+cd blockcraft-builder
+```
 
 2. **Abrir en Android Studio**
+   - File → Open → seleccionar la carpeta del proyecto
+   - Esperar sincronización de Gradle
 
-   - Inicia Android Studio.
-   - Selecciona **File → Open** y elige la carpeta del proyecto.
-   - Espera a que Gradle sincronice las dependencias automáticamente.
+3. **Configurar Firebase**
+   - Agregar tu archivo `google-services.json` en `app/`
 
-3. **Ejecutar la aplicación**
+4. **Ejecutar**
+   - Conectar emulador con API 33+
+   - Run → Run 'app' o `Shift + F10`
 
-   - Conecta un dispositivo Android físico (recomendado) o configura un emulador AVD con API 26+.
-   - Presiona **Run → Run 'app'** o usa el atajo `Shift + F10`.
-
-4. **Permisos requeridos**
-
-   La aplicación solicita los siguientes permisos en tiempo de ejecución:
-
-   ```xml
-   <!-- Necesario para exportar y compartir capturas de pantalla -->
-   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-   ```
-
-> **Nota:** No se requiere conexión a Internet en ningún momento para usar la aplicación.
+> **Nota:** No se requiere conexión a Internet para usar la app.
 
 ---
 
-## 📸 Capturas de Pantalla
-
-> 🚧 *Las capturas de pantalla serán añadidas una vez se complete la implementación en Android Studio.*
-
-## 📱 Capturas de Pantalla
-
-### Pantalla de Login
-<img width="406" height="874" alt="Login" src="https://github.com/user-attachments/assets/6fdb49c6-4f80-4e58-9b16-9e6c6cf26f16" />
-
-
-
-
-
-## 📊 Estado del Proyecto
-
-```
-[██████████░░░░░░░░░░]  45% completado
-```
-
-| Fase | Estado |
-|------|--------|
-| ✅ Prototipo de alta fidelidad en Figma | Completado |
-| ✅ Entorno Android Studio configurado | Completado |
-| ✅ Repositorio GitHub inicializado | Completado |
-| 🔄 Implementación de pantallas en Android Studio | En progreso |
-| ⏳ Integración de Room Database | Pendiente |
-| ⏳ Renderizado del grid 3D | Pendiente |
-| ⏳ Pruebas en dispositivos físicos | Pendiente |
-
-
-## ✅ Funcionalidades implementadas
-
-### Firebase Authentication
-
-- **Registro de usuarios** con validación en 14 pasos (nombre, email, contraseña con mayúscula, número y minúscula, confirmación)
-- **Inicio de sesión** con email y contraseña mediante Firebase Authentication
-- **Manejo de errores** de Firebase en español (correo ya registrado, contraseña incorrecta, usuario no encontrado)
-- **Persistencia de sesión** — si el usuario ya inició sesión, la app lo lleva directo a MainActivity sin pasar por Login
-- **Cierre de sesión** con redirección automática al Login
-- **Protección del Back Stack** con `FLAG_ACTIVITY_CLEAR_TASK` — el botón Atrás no regresa al Login tras autenticarse
-- **Perfil de usuario** — nombre y email del usuario autenticado visibles en MainActivity
-- **Pantalla principal** con AppBar, TabLayout (Todos / Naturaleza / Construcción) y BottomNavigationView (Inicio / Mundos / Inventario / Perfil)
-- **Tarjetas de progreso** — Bloques colocados y Horas de juego
