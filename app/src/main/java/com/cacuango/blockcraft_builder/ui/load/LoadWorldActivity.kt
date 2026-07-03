@@ -36,7 +36,7 @@ class LoadWorldActivity : AppCompatActivity() {
 
         setupUI()
         setupObservers()
-        viewModel.cargarTodosLosProyectos()
+
     }
 
     private fun setupUI() {
@@ -129,7 +129,8 @@ class LoadWorldActivity : AppCompatActivity() {
 
     private fun filtrarMundos(query: String?) {
         if (query.isNullOrEmpty()) {
-            viewModel.cargarTodosLosProyectos()
+            // ✅ Sin búsqueda — el Flow ya muestra todos automáticamente
+            setupObservers()
         } else {
             viewModel.buscarProyectos(query)
         }
@@ -146,6 +147,7 @@ class LoadWorldActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
+        // Observer principal — Flow reactivo de Room
         viewModel.proyectosLiveData.observe(this) { proyectos ->
             if (proyectos.isEmpty()) {
                 binding.emptyState.visibility = View.VISIBLE
@@ -157,14 +159,20 @@ class LoadWorldActivity : AppCompatActivity() {
             }
         }
 
+        // ✅ Observer de búsqueda — resultado de buscarProyectos()
+        viewModel.proyectosBusqueda.observe(this) { proyectos ->
+            if (proyectos.isNullOrEmpty()) {
+                binding.emptyState.visibility = View.VISIBLE
+                binding.recyclerViewMundos.visibility = View.GONE
+            } else {
+                binding.emptyState.visibility = View.GONE
+                binding.recyclerViewMundos.visibility = View.VISIBLE
+                adapter.actualizarLista(proyectos)
+            }
+        }
 
         viewModel.isLoading.observe(this) { isLoading ->
-            if (isLoading) {
-                // Mostrar progress bar (si tienes uno en el layout)
-                binding.progressBar.visibility = View.VISIBLE
-            } else {
-                binding.progressBar.visibility = View.GONE
-            }
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
         viewModel.error.observe(this) { mensaje ->

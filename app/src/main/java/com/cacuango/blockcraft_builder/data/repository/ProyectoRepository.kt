@@ -9,6 +9,7 @@ import com.cacuango.blockcraft.builder.data.local.entity.TipoBloque
 import com.cacuango.blockcraft.builder.data.local.entity.HistorialAccion
 import com.cacuango.blockcraft.builder.data.local.dao.TipoBloqueDao
 import com.cacuango.blockcraft.builder.data.local.dao.HistorialAccionDao
+import kotlinx.coroutines.flow.Flow
 
 
 class ProyectoRepository(
@@ -23,10 +24,14 @@ class ProyectoRepository(
 
     // ==================== PROYECTOS ====================
 
-    suspend fun obtenerTodosLosProyectos(): List<Proyecto> {
-        return proyectoDao.obtenerTodosLosProyectosSuspend()
+    fun obtenerProyectosFlow(): Flow<List<Proyecto>> {
+        return proyectoDao.obtenerTodosLosProyectos()
+
     }
 
+    suspend fun obtenerTodosLosProyectosSuspend(): List<Proyecto> {
+        return proyectoDao.obtenerTodosLosProyectosSuspend()
+    }
     suspend fun obtenerProyectoPorId(id: Int): Proyecto? {
         return proyectoDao.obtenerProyectoPorId(id)
     }
