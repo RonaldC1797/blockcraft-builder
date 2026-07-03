@@ -93,8 +93,9 @@ capa inmediatamente vecina. La UI nunca accede al DAO directamente.
 
 ### Estructura del Proyecto
 
+```
 app/src/main/java/com/cacuango/blockcraft_builder/
-├── BlockcraftApp.kt          # Application class + canales de notificación
+├── BlockcraftApp.kt
 ├── data/
 │   ├── local/
 │   │   ├── dao/              # ProyectoDao, BloqueDao
@@ -103,15 +104,13 @@ app/src/main/java/com/cacuango/blockcraft_builder/
 │   └── repository/           # ProyectoRepository
 ├── ui/
 │   ├── auth/                 # LoginActivity, RegisterActivity
-│   ├── create/               # CreateProjectActivity (crear + editar)
-│   ├── editor/               # EditorActivity (construcción 3D)
+│   ├── create/               # CreateProjectActivity
+│   ├── editor/               # EditorActivity
 │   ├── home/                 # MainActivity
 │   └── load/                 # LoadWorldActivity, MundoAdapter
 ├── viewmodel/                # ProyectoViewModel
-└── workers/                  # RecordatorioWorker (WorkManager)
-
-
----
+└── workers/                  # RecordatorioWorker
+```
 
 ## 🔔 Notificaciones Locales
 
