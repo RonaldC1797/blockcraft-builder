@@ -10,7 +10,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.cacuango.blockcraft.builder.data.local.database.AppDatabase
 import com.cacuango.blockcraft.builder.data.local.entity.Bloque
+import com.cacuango.blockcraft.builder.data.local.entity.HistorialAccion
 import com.cacuango.blockcraft.builder.data.local.entity.Proyecto
+import com.cacuango.blockcraft.builder.data.local.entity.TipoBloque
 import com.cacuango.blockcraft.builder.data.repository.ProyectoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,7 +24,9 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
         val db = AppDatabase.getInstance(application)
         ProyectoRepository(
             proyectoDao = db.proyectoDao(),
-            bloqueDao = db.bloqueDao()
+            bloqueDao = db.bloqueDao(),
+            tipoBloqueDao = db.tipoBloqueDao(),
+            historialAccionDao = db.historialAccionDao()
         )
     }
 
@@ -48,6 +52,10 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
+
+
+    private val _tiposBloque = MutableLiveData<List<TipoBloque>>()
+    val tiposBloque: LiveData<List<TipoBloque>> = _tiposBloque
 
     init {
         cargarTodosLosProyectos()
@@ -334,5 +342,73 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // ===== TIPOS DE BLOQUE =====
+
+    fun cargarTiposDeBloque() {
+        viewModelScope.launch {
+            try {
+                val tipos = withContext(Dispatchers.IO) {
+                    repository.obtenerTiposActivos()
+                }
+                _tiposBloque.postValue(tipos)
+            } catch (e: Exception) {
+                Log.e("ProyectoViewModel", "Error al cargar tipos de bloque", e)
+                _error.postValue("No se pudieron cargar los tipos de bloque.")
+            }
+        }
+    }
+
+// ===== HISTORIAL =====
+
+    fun registrarAccion(
+        proyectoId: Int,
+        tipoAccion: String,
+        tipoBloque: String,
+        posX: Int, posY: Int, posZ: Int,
+        orden: Int
+    ) {
+        viewModelScope.launch {
+            try {
+                val accion = HistorialAccion(
+                    id_proyecto = proyectoId,
+                    tipo_accion = tipoAccion,   // "COLOCAR" o "DESHACER"
+                    tipo_bloque = tipoBloque,
+                    pos_x = posX,
+                    pos_y = posY,
+                    pos_z = posZ,
+                    orden = orden,
+                    fecha_hora = System.currentTimeMillis().toString()
+                )
+                withContext(Dispatchers.IO) {
+                    repository.registrarAccion(accion)
+                }
+            } catch (e: Exception) {
+                Log.e("ProyectoViewModel", "Error al registrar acción", e)
+            }
+        }
+    }
+
+    fun deshacerAccion(proyectoId: Int) {
+        viewModelScope.launch {
+            try {
+                val ultimaAccion = withContext(Dispatchers.IO) {
+                    repository.obtenerUltimaAccion(proyectoId)
+                }
+                if (ultimaAccion != null && ultimaAccion.tipo_accion == "COLOCAR") {
+                    // Eliminar el bloque en esa posición
+                    withContext(Dispatchers.IO) {
+                        repository.limpiarHistorial(proyectoId)
+                    }
+                    _mensajeExito.postValue("↩ Acción deshecha")
+                    actualizarContadorBloques(proyectoId)
+                } else {
+                    _error.postValue("No hay acciones para deshacer")
+                }
+            } catch (e: Exception) {
+                Log.e("ProyectoViewModel", "Error al deshacer acción", e)
+                _error.postValue("No se pudo deshacer la acción.")
+            }
+        }
+    }
 
 }

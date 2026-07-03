@@ -5,10 +5,20 @@ import com.cacuango.blockcraft.builder.data.local.dao.BloqueDao
 import com.cacuango.blockcraft.builder.data.local.dao.ProyectoDao
 import com.cacuango.blockcraft.builder.data.local.entity.Bloque
 import com.cacuango.blockcraft.builder.data.local.entity.Proyecto
+import com.cacuango.blockcraft.builder.data.local.entity.TipoBloque
+import com.cacuango.blockcraft.builder.data.local.entity.HistorialAccion
+import com.cacuango.blockcraft.builder.data.local.dao.TipoBloqueDao
+import com.cacuango.blockcraft.builder.data.local.dao.HistorialAccionDao
+
 
 class ProyectoRepository(
     private val proyectoDao: ProyectoDao,
-    private val bloqueDao: BloqueDao
+    private val bloqueDao: BloqueDao,
+    private val tipoBloqueDao: TipoBloqueDao,        // ← agregar
+    private val historialAccionDao: HistorialAccionDao // ← agregar
+
+
+
 ) {
 
     // ==================== PROYECTOS ====================
@@ -77,5 +87,43 @@ class ProyectoRepository(
 
     suspend fun eliminarBloquesPorProyecto(proyectoId: Int) {
         bloqueDao.eliminarBloquesPorProyecto(proyectoId)
+    }
+
+
+    // ==================== TIPOS DE BLOQUE ====================
+
+    suspend fun obtenerTiposActivos(): List<TipoBloque> {
+        return tipoBloqueDao.obtenerTiposActivos()
+    }
+
+    suspend fun obtenerTodosLosTipos(): List<TipoBloque> {
+        return tipoBloqueDao.obtenerTodos()
+    }
+
+    suspend fun insertarTipoBloque(tipoBloque: TipoBloque): Long {
+        return tipoBloqueDao.insertarTipoBloque(tipoBloque)
+    }
+
+    // ==================== HISTORIAL ====================
+
+    suspend fun registrarAccion(accion: HistorialAccion) {
+        // Verificar límite de 20 acciones (CA-02.2)
+        val total = historialAccionDao.contarAccionesPorProyecto(accion.id_proyecto)
+        if (total >= 20) {
+            historialAccionDao.eliminarAccionMasAntigua(accion.id_proyecto)
+        }
+        historialAccionDao.insertarAccion(accion)
+    }
+
+    suspend fun obtenerUltimaAccion(proyectoId: Int): HistorialAccion? {
+        return historialAccionDao.obtenerUltimaAccion(proyectoId)
+    }
+
+    suspend fun obtenerHistorial(proyectoId: Int): List<HistorialAccion> {
+        return historialAccionDao.obtenerHistorialPorProyecto(proyectoId)
+    }
+
+    suspend fun limpiarHistorial(proyectoId: Int) {
+        historialAccionDao.limpiarHistorialPorProyecto(proyectoId)
     }
 }

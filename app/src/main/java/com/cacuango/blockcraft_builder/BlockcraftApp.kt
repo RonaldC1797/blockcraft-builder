@@ -9,6 +9,12 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.cacuango.blockcraft_builder.workers.RecordatorioWorker
 import java.util.concurrent.TimeUnit
+import com.cacuango.blockcraft.builder.data.local.database.AppDatabase
+import com.cacuango.blockcraft.builder.data.local.entity.TipoBloque
+import com.cacuango.blockcraft.builder.data.local.entity.HistorialAccion
+import kotlinx.coroutines.launch
+import com.cacuango.blockcraft.builder.data.local.dao.TipoBloqueDao
+import com.cacuango.blockcraft.builder.data.local.dao.HistorialAccionDao
 class BlockcraftApp : Application() {
 
     companion object {
@@ -22,6 +28,8 @@ class BlockcraftApp : Application() {
     override fun onCreate() {
         super.onCreate()
         crearCanalesDeNotificacion()
+        programarRecordatorio()
+        poblarTiposDeBloque()  // ← agregar
     }
 
 
@@ -90,6 +98,24 @@ class BlockcraftApp : Application() {
                 canalLogros,
                 canalExportacion
             ))
+        }
+    }
+
+    private fun poblarTiposDeBloque() {
+        val tiposIniciales = listOf(
+            TipoBloque(id = "madera",   nombre_display = "Madera",   activo = 1, orden_paleta = 1),
+            TipoBloque(id = "piedra",   nombre_display = "Piedra",   activo = 1, orden_paleta = 2),
+            TipoBloque(id = "ladrillo", nombre_display = "Ladrillo", activo = 1, orden_paleta = 3),
+            TipoBloque(id = "tierra",   nombre_display = "Tierra",   activo = 1, orden_paleta = 4),
+            TipoBloque(id = "arena",    nombre_display = "Arena",    activo = 1, orden_paleta = 5),
+            TipoBloque(id = "cristal",  nombre_display = "Cristal",  activo = 1, orden_paleta = 6)
+        )
+
+        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            val db = AppDatabase.getInstance(applicationContext)
+            tiposIniciales.forEach { tipo ->
+                db.tipoBloqueDao().insertarTipoBloque(tipo)
+            }
         }
     }
 }

@@ -1,369 +1,331 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5DC"
-    android:paddingTop="8dp">
+    android:orientation="vertical"
+    android:background="@color/crema_natural">
 
-    <!-- APP BAR -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <!-- ===== TOP APP BAR ===== -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#FFFFFF"
+        android:elevation="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Blockcraft Builder"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- ✅ BOTÓN NOTIFICACIONES -->
+        <ImageButton
+            android:id="@+id/btnNotifications"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_notifications" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- ===== SALUDO ===== -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/appbar_bg"
-        app:elevation="4dp"
-        app:cornerRadius="16dp">
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:layout_marginBottom="8dp">
 
-        <!-- 🔥 Usamos LinearLayout en lugar de Toolbar para mejor control -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/appbar_bg">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-            <!-- Fila superior: Avatar + Nombre + Íconos -->
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvUserName"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="16dp">
+                android:layout_height="wrap_content"
+                android:text="¡Hola, Constructor!"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary" />
 
-                <!-- Avatar -->
-                <TextView
-                    android:id="@+id/tvAvatar"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/circle_avatar_bg"
-                    android:gravity="center"
-                    android:text="U"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:textStyle="bold"/>
-
-                <!-- Nombre y Email -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
-
-                    <TextView
-                        android:id="@+id/tvUserName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Hola, Constructor!"
-                        android:textColor="#FFFFFF"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:visibility="visible"/>  <!-- 🔥 Forzado visible -->
-
-                    <TextView
-                        android:id="@+id/tvUserEmail"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="usuario@email.com"
-                        android:textColor="#D7CCC8"
-                        android:textSize="12sp"
-                        android:visibility="visible"/>  <!-- 🔥 Forzado visible -->
-
-                </LinearLayout>
-
-                <!-- Ícono notificaciones -->
-                <ImageButton
-                    android:id="@+id/btnNotifications"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_dialog_info"
-                    android:tint="#FFFFFF"
-                    android:scaleType="center"
-                    android:contentDescription="Notificaciones"/>
-
-                <!-- Ícono cerrar sesión -->
-                <ImageButton
-                    android:id="@+id/btnLogout"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginStart="4dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel"
-                    android:tint="#FFFFFF"
-                    android:scaleType="center"
-                    android:contentDescription="Cerrar sesión"/>
-
-            </LinearLayout>
-
-            <!-- Tabs -->
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
+            <TextView
+                android:id="@+id/tvUserEmail"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:background="@drawable/appbar_bg"
-                app:tabTextColor="#D7CCC8"
-                app:tabSelectedTextColor="#FFFFFF"
-                app:tabIndicatorColor="#81C784"
-                app:tabIndicatorHeight="2dp"
-                app:tabRippleColor="#4D81C784"
-                app:tabPaddingStart="8dp"
-                app:tabPaddingEnd="8dp"
-                app:tabTextAppearance="@style/TextAppearance.AppCompat.Small">
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Todos"/>
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Naturaleza"/>
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Construcción"/>
-
-            </com.google.android.material.tabs.TabLayout>
+                android:layout_height="wrap_content"
+                android:text="Blockcraft Builder"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary" />
 
         </LinearLayout>
 
-    </com.google.android.material.appbar.AppBarLayout>
+        <!-- ✅ BOTÓN CERRAR SESIÓN (LOGOUT) -->
+        <ImageButton
+            android:id="@+id/btnLogout"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_logout"
+            android:layout_gravity="center" />
 
-    <!-- CONTENIDO SCROLLEABLE -->
-    <androidx.core.widget.NestedScrollView
+        <TextView
+            android:id="@+id/tvAvatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@color/verde_bosque"
+            android:gravity="center"
+            android:text="C"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:cornerRadius="24dp" />
+
+    </LinearLayout>
+
+    <!-- ===== TABS ===== -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        app:tabIndicatorColor="@color/verde_bosque"
+        app:tabSelectedTextColor="@color/verde_bosque"
+        app:tabTextColor="@color/text_secondary"
+        app:tabMode="fixed"
+        app:tabGravity="fill">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Todos" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Naturaleza" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Construcción" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mecanismo" />
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <!-- ===== BOTONES PRINCIPALES ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:padding="16dp"
-        android:paddingTop="8dp"
-        android:clipToPadding="false"
-        android:layout_marginHorizontal="12dp">
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/btnNewWorld"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="NUEVO MUNDO"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_button_primary"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnCargarMundo"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="CARGAR"
+            android:textSize="14sp"
+            android:textColor="@color/verde_bosque"
+            android:background="@drawable/bg_button_outline"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+    <!-- ===== ESTADÍSTICAS ===== -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tu progreso"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="#FFFFFF"
+            android:layout_marginEnd="8dp"
+            android:elevation="2dp"
+            app:cornerRadius="8dp">
 
-            <!-- BOTÓN NUEVO MUNDO -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnNewWorld"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="+ Nuevo mundo"
-                android:textSize="14sp"
+            <TextView
+                android:id="@+id/tvBlocksCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="14.2k"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                app:backgroundTint="#81C784"
-                app:cornerRadius="12dp"
-                android:layout_marginBottom="16dp"/>
+                android:textColor="@color/verde_bosque" />
 
-            <!-- SECCIÓN TU PROGRESO -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tu progreso"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#4E342E"
-                android:layout_marginBottom="8dp"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="20dp">
-
-                <!-- Tarjeta Bloques -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardBackgroundColor="#FFFFFF"
-                    app:cardElevation="2dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp"
-                        android:gravity="center">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🧱"
-                            android:textSize="20sp"/>
-
-                        <TextView
-                            android:id="@+id/tvBlocksCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="#4E342E"
-                            android:layout_marginTop="2dp"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Bloques colocados"
-                            android:textSize="10sp"
-                            android:textColor="#8D6E63"/>
-
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- Tarjeta Horas -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardBackgroundColor="#FFFFFF"
-                    app:cardElevation="2dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp"
-                        android:gravity="center">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="⏱"
-                            android:textSize="20sp"/>
-
-                        <TextView
-                            android:id="@+id/tvHoursCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0h"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="#4E342E"
-                            android:layout_marginTop="2dp"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Horas de juego"
-                            android:textSize="10sp"
-                            android:textColor="#8D6E63"/>
-
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-            </LinearLayout>
-
-            <!-- SECCIÓN MUNDOS RECIENTES -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="10dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Mundos recientes"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:textColor="#4E342E"/>
-
-                <TextView
-                    android:id="@+id/tvVerTodos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ver todos"
-                    android:textSize="12sp"
-                    android:textColor="#81C784"
-                    android:textStyle="bold"/>
-
-            </LinearLayout>
-
-            <!-- Lista de mundos -->
-            <LinearLayout
-                android:id="@+id/llWorldsList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- Estado vacío -->
-                <LinearLayout
-                    android:id="@+id/llEmptyState"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="24dp"
-                    android:visibility="visible">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🌍"
-                        android:textSize="40sp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="No hay mundos guardados"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="#4E342E"
-                        android:layout_marginTop="8dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Crea tu primer mundo para comenzar a construir"
-                        android:textSize="12sp"
-                        android:textColor="#8D6E63"
-                        android:gravity="center"
-                        android:layout_marginTop="4dp"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnCreateFirst"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Crear ahora"
-                        android:layout_marginTop="12dp"
-                        app:backgroundTint="#81C784"
-                        app:cornerRadius="8dp"/>
-
-                </LinearLayout>
-
-            </LinearLayout>
+                android:text="Bloques colocados"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary" />
 
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
 
-    <!-- BOTTOM NAVIGATION -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="#FFFFFF"
+            android:layout_marginStart="8dp"
+            android:elevation="2dp"
+            app:cornerRadius="8dp">
+
+            <TextView
+                android:id="@+id/tvHoursCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="128h"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/verde_bosque" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Horas de juego"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- ===== MUNDOS RECIENTES ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Mundos recientes"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
+
+        <TextView
+            android:id="@+id/tvVerTodos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ver todos"
+            android:textSize="14sp"
+            android:textColor="@color/verde_bosque"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground" />
+
+    </LinearLayout>
+
+    <!-- ===== RECYCLER VIEW PARA MUNDOS ===== -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewMundos"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
+
+    <!-- ===== EMPTY STATE ===== -->
+    <LinearLayout
+        android:id="@+id/llEmptyState"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_empty_world"
+            android:tint="@color/verde_bosque"
+            android:alpha="0.5" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No hay mundos guardados"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crea tu primer mundo para comenzar a construir"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- ===== BOTTOM NAVIGATION ===== -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/bottom_nav_bg"
+        android:background="#FFFFFF"
+        app:elevation="8dp"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="#6D4C41"
-        app:itemTextColor="#6D4C41"
-        app:elevation="8dp"/>
+        app:itemIconTint="@color/text_secondary"
+        app:itemTextColor="@color/text_secondary"
+        app:itemRippleColor="@android:color/transparent" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

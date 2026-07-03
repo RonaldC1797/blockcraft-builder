@@ -1,4 +1,4 @@
-package com.cacuango.blockcraft_builder.data.local.dao
+package com.cacuango.blockcraft.builder.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert

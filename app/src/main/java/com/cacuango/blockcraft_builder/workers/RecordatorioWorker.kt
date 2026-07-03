@@ -23,7 +23,6 @@ class RecordatorioWorker(
             val proyectos = db.proyectoDao().obtenerTodosLosProyectosSuspend()
 
             if (proyectos.isNotEmpty()) {
-                // Tomar el proyecto más reciente
                 val proyectoReciente = proyectos.first()
                 enviarNotificacion(proyectoReciente.nombre)
             }

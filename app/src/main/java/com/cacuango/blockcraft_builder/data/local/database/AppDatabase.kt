@@ -10,8 +10,8 @@ import com.cacuango.blockcraft.builder.data.local.entity.Bloque
 import com.cacuango.blockcraft.builder.data.local.entity.Proyecto
 import com.cacuango.blockcraft.builder.data.local.entity.TipoBloque
 import com.cacuango.blockcraft.builder.data.local.entity.HistorialAccion
-import com.cacuango.blockcraft_builder.data.local.dao.HistorialAccionDao
-import com.cacuango.blockcraft_builder.data.local.dao.TipoBloqueDao
+import com.cacuango.blockcraft.builder.data.local.dao.HistorialAccionDao
+import com.cacuango.blockcraft.builder.data.local.dao.TipoBloqueDao
 
 @Database(
     entities = [

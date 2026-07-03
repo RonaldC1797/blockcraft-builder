@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BlockCraft_Builder"
+rootProject.name = "BlockCraft.Builder"
 include(":app")

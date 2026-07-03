@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.cacuango.blockcraft.builder.data.local.entity.Proyecto
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProyectoDao {
@@ -28,7 +29,12 @@ interface ProyectoDao {
 
     // ===== SELECT - OBTENER TODOS =====
     @Query("SELECT * FROM proyectos ORDER BY fechaModificacion DESC")
+    fun obtenerTodosLosProyectos(): Flow<List<Proyecto>>
+
+    // Para Repository y RecordatorioWorker — consulta directa
+    @Query("SELECT * FROM proyectos ORDER BY fechaModificacion DESC")
     suspend fun obtenerTodosLosProyectosSuspend(): List<Proyecto>
+
 
     // ===== SELECT - OBTENER POR ID =====
     @Query("SELECT * FROM proyectos WHERE id = :id")

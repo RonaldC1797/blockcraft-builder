@@ -1,3 +1,36 @@
 <resources>
-    <string name="app_name">BlockCraft_Builder</string>
+
+    <string name="app_name">BlockCraft Builder</string>
+
+    <string name="email_hint">Correo electrónico</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="no_account_text">¿No tienes cuenta?</string>
+    <string name="register_link">Registrarse</string>
+
+    <!-- ====== TEXTOS DE VALIDACIÓN ====== -->
+    <string name="error_email_required">El email es requerido</string>
+    <string name="error_email_invalid">Email inválido</string>
+    <string name="error_password_required">La contraseña es requerida</string>
+    <string name="error_password_min_length">Mínimo 6 caracteres</string>
+    <string name="error_password_weak">La contraseña debe tener mayúsculas, minúsculas y números</string>
+
+    <!-- ====== MENSAJES DE ÉXITO ====== -->
+    <string name="login_success">¡Inicio de sesión exitoso!</string>
+    <string name="login_error">Error al iniciar sesión. Intenta de nuevo.</string>
+
+    <!-- ====== TEXTOS DEL REGISTRO (para futura implementación) ====== -->
+    <string name="register_title">Crear cuenta</string>
+    <string name="register_button">Registrarse</string>
+    <string name="register_name_hint">Nombre completo</string>
+    <string name="register_confirm_password_hint">Confirmar contraseña</string>
+    <string name="have_account_text">¿Ya tienes cuenta?</string>
+    <string name="login_link">Iniciar sesión</string>
+
+    <!-- ====== TEXTOS DE TÍTULOS ====== -->
+    <string name="welcome_title">Bienvenido</string>
+    <string name="welcome_subtitle">Inicia sesión para continuar</string>
+
+
+
 </resources>
