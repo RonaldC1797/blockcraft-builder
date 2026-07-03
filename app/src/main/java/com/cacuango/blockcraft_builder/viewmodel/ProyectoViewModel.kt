@@ -2,7 +2,7 @@
 package com.cacuango.blockcraft.builder.viewmodel
 
 import android.app.Application
-import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -103,7 +103,7 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                     return@launch
                 }
 
-                val fechaActual = java.util.Date().toString()
+                val fechaActual = System.currentTimeMillis().toString()
                 val proyecto = Proyecto(
                     nombre = nombre,
                     fechaCreacion = fechaActual,
@@ -184,7 +184,8 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                 }
                 _proyectosLiveData.postValue(proyectos)
             } catch (e: Exception) {
-                _error.postValue("Error al buscar proyectos: ${e.message}")
+                Log.e("ProyectoViewModel", "Error al cargar proyectos", e)
+                _error.postValue("No se pudieron cargar los proyectos. Intenta nuevamente")
             } finally {
                 _isLoading.value = false
             }
@@ -192,9 +193,23 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun filtrarProyectosPorBioma(bioma: String?) {
-        cargarTodosLosProyectos()
-        if (bioma != null) {
-            _mensajeExito.postValue("Filtrando por: $bioma")
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val proyectos = withContext(Dispatchers.IO) {
+                    if (bioma == null || bioma == "Todos") {
+                        repository.obtenerTodosLosProyectos()
+                    } else {
+                        repository.buscarProyectosPorNombre(bioma)
+                    }
+                }
+                _proyectosLiveData.postValue(proyectos)
+            } catch (e: Exception) {
+                Log.e("ProyectoViewModel", "Error al filtrar por bioma", e)
+                _error.postValue("Error al filtrar proyectos.")
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
@@ -216,7 +231,8 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                 actualizarContadorBloques(proyectoId)
                 _mensajeExito.postValue("✅ Bloque agregado")
             } catch (e: Exception) {
-                _error.postValue("❌ Error al agregar bloque: ${e.message}")
+                Log.e("ProyectoViewModel", "❌Error al agregar bloque", e)
+                _error.postValue(" Error al agregar bloque, Intenta nuevamente")
             }
         }
     }
@@ -234,10 +250,12 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                     actualizarContadorBloques(proyectoId)
                     _mensajeExito.postValue("↩ Último bloque eliminado")
                 } else {
+
                     _error.postValue("No hay bloques para deshacer")
                 }
             } catch (e: Exception) {
-                _error.postValue("❌ Error al deshacer: ${e.message}")
+                Log.e("ProyectoViewModel", "❌Error al deshacer", e)
+                _error.postValue(" No se pudo deshacer, Intenta nuevamente ")
             }
         }
     }
@@ -255,7 +273,8 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                 }
                 _contadorBloques.postValue(contador)
             } catch (e: Exception) {
-                _error.postValue("Error al contar bloques: ${e.message}")
+                Log.e("ProyectoViewModel", "Error al contar bloques", e)
+                _error.postValue("No se pudieron contar los bloques")
             }
         }
     }
@@ -270,23 +289,19 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
         _mensajeExito.postValue(if (activa) "📐 Cuadrícula activada" else "📐 Cuadrícula desactivada")
     }
 
-    fun compartirProyecto(proyectoId: Int, context: Context) {
+    // ✅ DESPUÉS — sin Context, solo emite evento
+    fun compartirProyecto(proyectoId: Int) {
         viewModelScope.launch {
             try {
                 val proyecto = withContext(Dispatchers.IO) {
                     repository.obtenerProyectoPorId(proyectoId)
                 }
                 if (proyecto != null) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context,
-                            "📤 Compartiendo: ${proyecto.nombre}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    _mensajeExito.postValue("📤 Compartiendo: ${proyecto.nombre}")
                 }
             } catch (e: Exception) {
-                _error.postValue("Error al compartir: ${e.message}")
+                Log.e("ProyectoViewModel", "Error al compartir", e)
+                _error.postValue("No se pudo compartir el proyecto.")
             }
         }
     }
@@ -301,7 +316,7 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                 if (proyecto != null) {
                     val actualizado = proyecto.copy(
                         nombre = nuevoNombre,
-                        fechaModificacion = java.util.Date().toString()
+                        fechaModificacion = System.currentTimeMillis().toString()
                     )
                     withContext(Dispatchers.IO) {
                         repository.guardarProyecto(actualizado)
@@ -311,7 +326,8 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                     cargarTodosLosProyectos()
                 }
             } catch (e: Exception) {
-                _error.postValue("❌ Error al actualizar: ${e.message}")
+                Log.e("ProyectoViewModel", "❌Error al actualizar", e)
+                _error.postValue("No se pudo actualizar el proyecto")
             } finally {
                 _isLoading.value = false
             }
