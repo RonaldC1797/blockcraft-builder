@@ -36,6 +36,8 @@ class ProyectoRepository(
         return proyectoDao.obtenerProyectoPorId(id)
     }
 
+
+
     suspend fun guardarProyecto(proyecto: Proyecto): Long {
         return if (proyecto.id == 0) {
             proyectoDao.insertarProyecto(proyecto)
@@ -72,6 +74,7 @@ class ProyectoRepository(
     suspend fun agregarBloque(bloque: Bloque): Long {
         return bloqueDao.insertarBloque(bloque)
     }
+
 
     suspend fun eliminarBloquePorId(id: Int): Boolean {
         return try {

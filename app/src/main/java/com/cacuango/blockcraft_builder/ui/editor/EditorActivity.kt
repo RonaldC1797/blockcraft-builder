@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.cacuango.blockcraft.builder.R
 import com.cacuango.blockcraft.builder.databinding.ActivityEditorBinding
 import com.cacuango.blockcraft.builder.viewmodel.ProyectoViewModel
 
@@ -14,6 +15,8 @@ class EditorActivity : AppCompatActivity() {
     private var proyectoId: Int = 0
     private var ordenAccion: Int = 0
     private var tipoActual: String = "madera"
+
+    private var bloqueSeleccionadoView: android.view.ViewGroup? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +30,15 @@ class EditorActivity : AppCompatActivity() {
         setupUI()
         setupObservers()
         cargarProyecto()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Guardar automáticamente al salir
+        val bloques = binding.isometricView.obtenerBloquesParaGuardar(proyectoId)
+        if (bloques.isNotEmpty()) {
+            viewModel.guardarTodosLosBloques(proyectoId, bloques)
+        }
     }
 
     private fun setupCanvas() {
@@ -67,92 +79,84 @@ class EditorActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        // Botón regresar
         binding.btnBack.setOnClickListener { finish() }
 
-        // Botón guardar
         binding.btnSave.setOnClickListener {
+            binding.btnSave.isEnabled = false
+            val bloques = binding.isometricView.obtenerBloquesParaGuardar(proyectoId)
+            viewModel.guardarTodosLosBloques(proyectoId, bloques)
             viewModel.guardarProyecto(proyectoId)
         }
 
-        // Botón deshacer — conectado al motor
         binding.btnUndo.setOnClickListener {
-            binding.isometricView.deshacerUltimo()
-            viewModel.deshacerUltimaAccion(proyectoId)
+            val resultado = binding.isometricView.deshacerUltimo()
+            if (resultado == null) {
+                Toast.makeText(this, "No hay bloques para deshacer", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // Botón rehacer
         binding.btnRedo.setOnClickListener {
             Toast.makeText(this, "↪ Rehacer no disponible aún", Toast.LENGTH_SHORT).show()
         }
 
-        // Switch cuadrícula — HU-05
         binding.switchGrid.setOnCheckedChangeListener { _, isChecked ->
             binding.isometricView.mostrarCuadricula(isChecked)
-            viewModel.activarCuadricula(isChecked)
         }
 
-        // Tabs de categorías — HU-03
-        binding.tabStructure.setOnClickListener { seleccionarCategoria("Estructura") }
-        binding.tabDecoration.setOnClickListener { seleccionarCategoria("Decoración") }
-        binding.tabNature.setOnClickListener { seleccionarCategoria("Naturaleza") }
-        binding.tabSpecial.setOnClickListener { seleccionarCategoria("Especiales") }
+        // ===== SELECTOR VISUAL DE BLOQUES =====
+        val botonesBloques = listOf(
+            Pair(binding.btnBloquesMadera, "madera"),
+            Pair(binding.btnBloquesPiedra, "piedra"),
+            Pair(binding.btnBloquesLadrillo, "ladrillo"),
+            Pair(binding.btnBloquesTierra, "tierra"),
+            Pair(binding.btnBloquesArena, "arena"),
+            Pair(binding.btnBloquesCristal, "cristal")
+        )
 
-        seleccionarCategoria("Estructura")
+        botonesBloques.forEach { (boton, tipo) ->
+            boton.setOnClickListener {
+                // Resetear todos a normal
+                botonesBloques.forEach { (b, _) ->
+                    b.setBackgroundResource(R.drawable.bg_bloque_normal)
+                }
+                // Marcar seleccionado
+                boton.setBackgroundResource(R.drawable.bg_bloque_seleccionado)
+                bloqueSeleccionadoView = boton
+                // Actualizar tipo en el motor
+                tipoActual = tipo
+                binding.isometricView.setTipoSeleccionado(tipo)
+            }
+        }
+
+        // Seleccionar Madera por defecto
+        binding.btnBloquesMadera.setBackgroundResource(R.drawable.bg_bloque_seleccionado)
+        bloqueSeleccionadoView = binding.btnBloquesMadera
+        binding.isometricView.setTipoSeleccionado("madera")
     }
 
-    private fun seleccionarCategoria(categoria: String) {
-        // Resetear estilos
-        listOf(
-            binding.tabStructure,
-            binding.tabDecoration,
-            binding.tabNature,
-            binding.tabSpecial
-        ).forEach { tab ->
-            tab.setTextColor(resources.getColor(android.R.color.black, null))
-            tab.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
-        }
 
-        // Marcar seleccionado y cambiar tipo de bloque activo
-        when (categoria) {
-            "Estructura" -> {
-                binding.tabStructure.setTextColor(
-                    resources.getColor(com.cacuango.blockcraft.builder.R.color.purple_500, null)
-                )
-                tipoActual = "madera"
-            }
-            "Decoración" -> {
-                binding.tabDecoration.setTextColor(
-                    resources.getColor(com.cacuango.blockcraft.builder.R.color.purple_500, null)
-                )
-                tipoActual = "ladrillo"
-            }
-            "Naturaleza" -> {
-                binding.tabNature.setTextColor(
-                    resources.getColor(com.cacuango.blockcraft.builder.R.color.purple_500, null)
-                )
-                tipoActual = "tierra"
-            }
-            "Especiales" -> {
-                binding.tabSpecial.setTextColor(
-                    resources.getColor(com.cacuango.blockcraft.builder.R.color.purple_500, null)
-                )
-                tipoActual = "cristal"
-            }
-        }
-
-        // Actualizar tipo en la vista
-        binding.isometricView.setTipoSeleccionado(tipoActual)
-        Toast.makeText(this, "Categoría: $categoria — Bloque: $tipoActual", Toast.LENGTH_SHORT).show()
-    }
 
     private fun setupObservers() {
+        // Cargar bloques en el grid cuando Room los devuelve
+        viewModel.bloquesDelProyecto.observe(this) { bloques ->
+            if (bloques.isNotEmpty()) {
+                binding.isometricView.cargarBloques(bloques)
+            }
+        }
+
         viewModel.mensajeExito.observe(this) { mensaje ->
             Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
+            // Si el mensaje es de guardado, habilitar botón de nuevo
+            binding.btnSave.isEnabled = true
         }
 
         viewModel.error.observe(this) { mensaje ->
             Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
+            binding.btnSave.isEnabled = true
+        }
+
+        viewModel.isLoading.observe(this) { isLoading ->
+            binding.btnSave.isEnabled = !isLoading
         }
 
         viewModel.contadorBloques.observe(this) { contador ->
@@ -161,7 +165,9 @@ class EditorActivity : AppCompatActivity() {
     }
 
     private fun cargarProyecto() {
+        // Cargar info del proyecto
         viewModel.cargarProyecto(proyectoId)
-        viewModel.obtenerContadorBloques(proyectoId)
+        // Cargar bloques guardados en Room
+        viewModel.cargarBloquesDelProyecto(proyectoId)
     }
 }

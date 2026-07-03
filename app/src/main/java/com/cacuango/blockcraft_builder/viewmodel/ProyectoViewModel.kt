@@ -31,6 +31,10 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
 
     // ===== LIVEDATA =====
 
+    private val _bloquesDelProyecto = MutableLiveData<List<Bloque>>()
+    val bloquesDelProyecto: LiveData<List<Bloque>> = _bloquesDelProyecto
+
+
     // ✅ Flow reactivo — Room actualiza automáticamente sin llamadas manuales
     val proyectosLiveData: LiveData<List<Proyecto>> get() =
         repository.obtenerProyectosFlow().asLiveData()
@@ -109,7 +113,6 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                 }
 
                 _proyectoCreado.postValue(id.toInt())
-                _mensajeExito.postValue("✅ Proyecto '$nombre' creado exitosamente")
                 // ✅ Ya no necesita cargarTodosLosProyectos() — Flow lo hace solo
 
             } catch (e: Exception) {
@@ -133,8 +136,7 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                     withContext(Dispatchers.IO) {
                         repository.guardarProyecto(proyectoActualizado)
                     }
-                    _mensajeExito.postValue("✅ Proyecto guardado")
-                    // ✅ Flow actualiza la lista automáticamente
+
                 } else {
                     _error.postValue("No hay proyecto para guardar")
                 }
@@ -155,8 +157,7 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                     repository.eliminarProyectoPorId(id)
                 }
                 if (exito) {
-                    _mensajeExito.postValue("✅ Proyecto eliminado")
-                    // ✅ Flow actualiza la lista automáticamente
+
                 } else {
                     _error.postValue("No se pudo eliminar el proyecto")
                 }
@@ -224,8 +225,6 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                         repository.guardarProyecto(actualizado)
                     }
                     _proyectoCreado.postValue(actualizado.id)
-                    _mensajeExito.postValue("✅ Proyecto actualizado")
-                    // ✅ Flow actualiza la lista automáticamente
                 }
             } catch (e: Exception) {
                 Log.e("ProyectoViewModel", "Error al actualizar proyecto", e)
@@ -252,7 +251,6 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                     repository.agregarBloque(bloque)
                 }
                 actualizarContadorBloques(proyectoId)
-                _mensajeExito.postValue("✅ Bloque agregado")
             } catch (e: Exception) {
                 Log.e("ProyectoViewModel", "Error al agregar bloque", e)
                 _error.postValue("Error al agregar bloque. Intenta de nuevo.")
@@ -271,7 +269,6 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                         repository.eliminarBloquePorId(ultimoBloque.id)
                     }
                     actualizarContadorBloques(proyectoId)
-                    _mensajeExito.postValue("↩ Último bloque eliminado")
                 } else {
                     _error.postValue("No hay bloques para deshacer")
                 }
@@ -300,6 +297,40 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+
+    fun cargarBloquesDelProyecto(proyectoId: Int) {
+        viewModelScope.launch {
+            try {
+                val bloques = withContext(Dispatchers.IO) {
+                    repository.obtenerBloquesPorProyecto(proyectoId)
+                }
+                _bloquesDelProyecto.postValue(bloques)
+            } catch (e: Exception) {
+                Log.e("ProyectoViewModel", "Error al cargar bloques", e)
+                _error.postValue("No se pudieron cargar los bloques del proyecto.")
+            }
+        }
+    }
+
+    fun guardarTodosLosBloques(proyectoId: Int, bloques: List<Bloque>) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                withContext(Dispatchers.IO) {
+                    // Borrar bloques anteriores
+                    repository.eliminarBloquesPorProyecto(proyectoId)
+                    // Insertar los nuevos
+                    bloques.forEach { repository.agregarBloque(it) }
+                }
+            } catch (e: Exception) {
+                Log.e("ProyectoViewModel", "Error al guardar bloques", e)
+                _error.postValue("No se pudo guardar la construcción.")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
 
     // ===== TIPOS DE BLOQUE =====
 
@@ -357,7 +388,6 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                     withContext(Dispatchers.IO) {
                         repository.limpiarHistorial(proyectoId)
                     }
-                    _mensajeExito.postValue("↩ Acción deshecha")
                     actualizarContadorBloques(proyectoId)
                 } else {
                     _error.postValue("No hay acciones para deshacer")
@@ -372,29 +402,11 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
     // ===== UTILIDADES =====
 
     fun cambiarCategoriaBloques(categoria: String) {
-        _mensajeExito.postValue("Categoría cambiada a: $categoria")
     }
 
     fun activarCuadricula(activa: Boolean) {
-        _mensajeExito.postValue(
-            if (activa) "📐 Cuadrícula activada"
-            else "📐 Cuadrícula desactivada"
-        )
+
     }
 
-    fun compartirProyecto(proyectoId: Int) {
-        viewModelScope.launch {
-            try {
-                val proyecto = withContext(Dispatchers.IO) {
-                    repository.obtenerProyectoPorId(proyectoId)
-                }
-                if (proyecto != null) {
-                    _mensajeExito.postValue("📤 Compartiendo: ${proyecto.nombre}")
-                }
-            } catch (e: Exception) {
-                Log.e("ProyectoViewModel", "Error al compartir", e)
-                _error.postValue("No se pudo compartir el proyecto.")
-            }
-        }
-    }
+
 }

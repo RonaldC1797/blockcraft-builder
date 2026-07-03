@@ -8,6 +8,7 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.cacuango.blockcraft.builder.data.local.entity.Bloque
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -361,6 +362,55 @@ class IsometricView @JvmOverloads constructor(
         }
         return null
     }
+    fun cargarBloques(listaBloques: List<Bloque>) {
+        // Limpiar grid actual
+        for (fila in 0 until GRID_SIZE)
+            for (col in 0 until GRID_SIZE)
+                bloques[fila][col].clear()
+
+        // Reconstruir grid desde Room
+        // posX = col, posY = altura, posZ = fila
+        for (bloque in listaBloques) {
+            val col = bloque.posX.coerceIn(0, GRID_SIZE - 1)
+            val fila = bloque.posZ.coerceIn(0, GRID_SIZE - 1)
+            val altura = bloque.posY
+
+            // Asegurar que la pila tenga el tamaño correcto
+            while (bloques[fila][col].size <= altura) {
+                bloques[fila][col].add("")
+            }
+            bloques[fila][col][altura] = bloque.tipoId
+        }
+
+        invalidate()
+    }
+
+    fun obtenerBloquesParaGuardar(proyectoId: Int): List<Bloque> {
+        val lista = mutableListOf<Bloque>()
+        var orden = 0
+        for (fila in 0 until GRID_SIZE) {
+            for (col in 0 until GRID_SIZE) {
+                val pila = bloques[fila][col]
+                for (altura in pila.indices) {
+                    val tipo = pila[altura]
+                    if (tipo.isNotEmpty()) {
+                        lista.add(
+                            Bloque(
+                                proyectoId = proyectoId,
+                                tipoId = tipo,
+                                posX = col,
+                                posY = altura,
+                                posZ = fila,
+                                ordenColocacion = orden++
+                            )
+                        )
+                    }
+                }
+            }
+        }
+        return lista
+    }
+
 
     fun contarBloques(): Int =
         bloques.sumOf { fila -> fila.sumOf { it.size } }

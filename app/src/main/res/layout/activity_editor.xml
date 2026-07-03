@@ -97,58 +97,150 @@
     </LinearLayout>
 
     <!-- ===== TABS DE CATEGORÍAS ===== -->
-    <LinearLayout
+    <!-- ===== SELECTOR DE BLOQUES ===== -->
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
+        android:layout_height="wrap_content"
         android:background="#FFFFFF"
-        android:elevation="2dp">
+        android:elevation="4dp"
+        android:scrollbars="none">
 
-        <TextView
-            android:id="@+id/tabStructure"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Estructura"
-            android:gravity="center"
-            android:textColor="#6C63FF"
-            android:textStyle="bold"
-            android:textSize="12sp"
-            android:background="?attr/selectableItemBackground" />
+        <LinearLayout
+            android:id="@+id/layoutBloques"
+            android:layout_width="wrap_content"
+            android:layout_height="72dp"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tabDecoration"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Decoración"
-            android:gravity="center"
-            android:textColor="#333333"
-            android:textSize="12sp"
-            android:background="?attr/selectableItemBackground" />
+            <!-- Bloque Madera -->
+            <LinearLayout
+                android:id="@+id/btnBloquesMadera"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_bloque_seleccionado"
+                android:layout_marginEnd="8dp">
+                <View
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="#B5651D"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Madera"
+                    android:textSize="8sp"
+                    android:textColor="#333333"/>
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/tabNature"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Naturaleza"
-            android:gravity="center"
-            android:textColor="#333333"
-            android:textSize="12sp"
-            android:background="?attr/selectableItemBackground" />
+            <!-- Bloque Piedra -->
+            <LinearLayout
+                android:id="@+id/btnBloquesPiedra"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_bloque_normal"
+                android:layout_marginEnd="8dp">
+                <View
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="#808080"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Piedra"
+                    android:textSize="8sp"
+                    android:textColor="#333333"/>
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/tabSpecial"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Especiales"
-            android:gravity="center"
-            android:textColor="#333333"
-            android:textSize="12sp"
-            android:background="?attr/selectableItemBackground" />
+            <!-- Bloque Ladrillo -->
+            <LinearLayout
+                android:id="@+id/btnBloquesLadrillo"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_bloque_normal"
+                android:layout_marginEnd="8dp">
+                <View
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="#CC4444"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ladrillo"
+                    android:textSize="8sp"
+                    android:textColor="#333333"/>
+            </LinearLayout>
 
-    </LinearLayout>
+            <!-- Bloque Tierra -->
+            <LinearLayout
+                android:id="@+id/btnBloquesTierra"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_bloque_normal"
+                android:layout_marginEnd="8dp">
+                <View
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="#8B6914"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tierra"
+                    android:textSize="8sp"
+                    android:textColor="#333333"/>
+            </LinearLayout>
+
+            <!-- Bloque Arena -->
+            <LinearLayout
+                android:id="@+id/btnBloquesArena"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_bloque_normal"
+                android:layout_marginEnd="8dp">
+                <View
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="#F4D03F"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Arena"
+                    android:textSize="8sp"
+                    android:textColor="#333333"/>
+            </LinearLayout>
+
+            <!-- Bloque Cristal -->
+            <LinearLayout
+                android:id="@+id/btnBloquesCristal"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_bloque_normal"
+                android:layout_marginEnd="8dp">
+                <View
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="#85C1E9"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cristal"
+                    android:textSize="8sp"
+                    android:textColor="#333333"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </LinearLayout>
