@@ -1,6 +1,8 @@
 package com.cacuango.blockcraft.builder.ui.editor
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -19,6 +21,10 @@ class IsometricView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
+    // ← AGREGAR al inicio de la clase
+
+    private val texturas = mutableMapOf<String, Bitmap>()
+    private val paintBitmap = Paint(Paint.ANTI_ALIAS_FLAG)
     // ===== CONFIGURACIÓN =====
     private val GRID_SIZE = 20
     private val MAX_HEIGHT = 10
@@ -48,22 +54,97 @@ class IsometricView @JvmOverloads constructor(
     private var lastAngle = 0f
     private var initialFingerDistance = 0f
 
+    // Agregar variables al inicio de la clase
+    private var hoverCol = -1
+    private var hoverFila = -1
+
+    private val paintHover = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(120, 100, 200, 100)
+        style = Paint.Style.FILL
+    }
+    private val paintHoverBorder = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(200, 50, 180, 50)
+        style = Paint.Style.STROKE
+        strokeWidth = 2f
+    }
+
+    private var alturaSeleccionada: Int = 0
+    fun setAlturaSeleccionada(altura: Int) {
+        alturaSeleccionada = altura
+    }
+
+    fun getAlturaSeleccionada(): Int = alturaSeleccionada
+
     // ===== ESTADO =====
     private val bloques = Array(GRID_SIZE) {
         Array(GRID_SIZE) { mutableListOf<String>() }
     }
+
+    // Pila para deshacer — guarda (col, fila, altura, tipo)
+    private val pilaDeshacer = ArrayDeque<Triple<Int, Int, String>>()
+    // Pila para rehacer — guarda lo que se deshizo
+    private val pilaRehacer = ArrayDeque<Triple<Int, Int, String>>()
     private var tipoSeleccionado: String = "madera"
-    private var mostrarCuadricula: Boolean = true
+    private var mostrarCuadricula: Boolean = false
 
     // ===== COLORES =====
-    private val coloresTipo = mapOf(
-        "madera"   to Triple(0xFFB5651D.toInt(), 0xFF8B4513.toInt(), 0xFFA0522D.toInt()),
-        "piedra"   to Triple(0xFF808080.toInt(), 0xFF696969.toInt(), 0xFF778899.toInt()),
-        "ladrillo" to Triple(0xFFCC4444.toInt(), 0xFF993333.toInt(), 0xFFBB3333.toInt()),
-        "tierra"   to Triple(0xFF8B6914.toInt(), 0xFF6B4F10.toInt(), 0xFF7A5C12.toInt()),
-        "arena"    to Triple(0xFFF4D03F.toInt(), 0xFFD4AC0D.toInt(), 0xFFE8C51A.toInt()),
-        "cristal"  to Triple(0xFF85C1E9.toInt(), 0xFF5DADE2.toInt(), 0xFF7FB3D3.toInt())
+// ===== BLOQUES POR CATEGORÍA =====
+    val BLOQUES_ESTRUCTURA = listOf(
+        "blk_estructura_piedra", "blk_estructura_madera",
+        "blk_estructura_madera_oscura", "blk_estructura_madera_clara",
+        "blk_estructura_ladrillo", "blk_estructura_metal",
+        "blk_estructura_metal_oscuro", "blk_estructura_cemento",
+        "blk_estructura_cemento_oscuro", "blk_estructura_roca",
+        "blk_estructura_roca_oscura"
     )
+
+    val BLOQUES_DECORACION = listOf(
+        "blk_deco_amarillo", "blk_deco_naranja",
+        "blk_deco_morado", "blk_deco_especial"
+    )
+
+    val BLOQUES_NATURALEZA = listOf(
+        "blk_nat_cesped", "blk_nat_tierra", "blk_nat_tierra_oscura",
+        "blk_nat_arcilla", "blk_nat_arena", "blk_nat_nieve",
+        "blk_nat_hielo", "blk_nat_agua", "blk_nat_lava",
+        "blk_nat_roca_verde", "blk_nat_musgo", "blk_nat_madera_arbol",
+        "blk_nat_flor", "blk_nat_hoja"
+    )
+
+    val BLOQUES_ESPECIALES = listOf(
+        "blk_esp_cristal_rojo", "blk_esp_cristal_azul",
+        "blk_esp_cristal_verde", "blk_esp_oro", "blk_esp_diamante",
+        "blk_esp_esmeralda", "blk_esp_rubi", "blk_esp_zafiro",
+        "blk_esp_neon_azul", "blk_esp_neon_verde", "blk_esp_gris_especial"
+    )
+
+    companion object {
+        val BLOQUES_ESTRUCTURA = listOf(
+            "blk_estructura_piedra", "blk_estructura_madera",
+            "blk_estructura_madera_oscura", "blk_estructura_madera_clara",
+            "blk_estructura_ladrillo", "blk_estructura_metal",
+            "blk_estructura_metal_oscuro", "blk_estructura_cemento",
+            "blk_estructura_cemento_oscuro", "blk_estructura_roca",
+            "blk_estructura_roca_oscura"
+        )
+        val BLOQUES_DECORACION = listOf(
+            "blk_deco_amarillo", "blk_deco_naranja",
+            "blk_deco_morado", "blk_deco_especial"
+        )
+        val BLOQUES_NATURALEZA = listOf(
+            "blk_nat_cesped", "blk_nat_tierra", "blk_nat_tierra_oscura",
+            "blk_nat_arcilla", "blk_nat_arena", "blk_nat_nieve",
+            "blk_nat_hielo", "blk_nat_agua", "blk_nat_lava",
+            "blk_nat_roca_verde", "blk_nat_musgo", "blk_nat_madera_arbol",
+            "blk_nat_flor", "blk_nat_hoja"
+        )
+        val BLOQUES_ESPECIALES = listOf(
+            "blk_esp_cristal_rojo", "blk_esp_cristal_azul",
+            "blk_esp_cristal_verde", "blk_esp_oro", "blk_esp_diamante",
+            "blk_esp_esmeralda", "blk_esp_rubi", "blk_esp_zafiro",
+            "blk_esp_neon_azul", "blk_esp_neon_verde", "blk_esp_gris_especial"
+        )
+    }
 
     // ===== PAINTS =====
     private val paintTop   = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -91,7 +172,11 @@ class IsometricView @JvmOverloads constructor(
     var onBloqueColocado: ((col: Int, fila: Int, altura: Int, tipo: String) -> Unit)? = null
     var onBloqueEliminado: ((col: Int, fila: Int, altura: Int) -> Unit)? = null
 
+    // Historial de colocación en orden exacto
+    private val historialColocacion = ArrayDeque<Triple<Int, Int, Int>>() // col, fila, altura
+
     init {
+        cargarTexturas(context)
         post {
             cameraX = width / 2f
             cameraY = BLOCK_HEIGHT * 3
@@ -101,8 +186,6 @@ class IsometricView @JvmOverloads constructor(
     // ===== DIBUJO =====
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
-        // Ordenar celdas según rotación para perspectiva correcta
         val orden = generarOrdenDibujo()
 
         for ((fila, col) in orden) {
@@ -113,10 +196,22 @@ class IsometricView @JvmOverloads constructor(
 
             dibujarCeldaBase(canvas, sx, sy)
 
+            // ✅ Highlight de la celda seleccionada
+            if (col == hoverCol && fila == hoverFila) {
+                val pila = bloques[fila][col]
+                val alturaHover = pila.size
+                val (hsx, hsy) = toScreen(col, fila, alturaHover)
+                val path = celdaPath(hsx, hsy)
+                canvas.drawPath(path, paintHover)
+                canvas.drawPath(path, paintHoverBorder)
+            }
+
             val pila = bloques[fila][col]
             for (altura in pila.indices) {
+                val tipo = pila[altura]
+                if (tipo.isEmpty()) continue  // ← AGREGAR esta línea
                 val (bsx, bsy) = toScreen(col, fila, altura)
-                dibujarBloque(canvas, bsx, bsy, pila[altura])
+                dibujarBloque(canvas, bsx, bsy, tipo)
             }
         }
     }
@@ -142,45 +237,54 @@ class IsometricView @JvmOverloads constructor(
     }
 
     private fun dibujarBloque(canvas: Canvas, sx: Float, sy: Float, tipo: String) {
-        val colores = coloresTipo[tipo] ?: Triple(Color.GRAY, Color.DKGRAY, Color.LTGRAY)
         val bw = BLOCK_WIDTH * zoom
         val bh = BLOCK_HEIGHT * zoom
         val bd = BLOCK_DEPTH * zoom
+        val textura = texturas[tipo]
 
-        paintTop.color = colores.first
-        val top = Path().apply {
-            moveTo(sx, sy - bd)
-            lineTo(sx + bw / 2, sy + bh / 2 - bd)
-            lineTo(sx + bw, sy - bd)
-            lineTo(sx + bw / 2, sy - bh / 2 - bd)
-            close()
-        }
-        canvas.drawPath(top, paintTop)
-        canvas.drawPath(top, paintBorder)
+        if (textura != null) {
+            val dstRect = android.graphics.RectF(
+                sx,
+                sy - bd * 1.5f,
+                sx + bw,
+                sy + bh * 0.5f
+            )
+            paintBitmap.alpha = 255
+            canvas.drawBitmap(textura, null, dstRect, paintBitmap)
+        } else {
+            // Fallback simple sin coloresTipo
+            paintTop.color = android.graphics.Color.GRAY
+            val top = Path().apply {
+                moveTo(sx, sy - bd)
+                lineTo(sx + bw/2, sy + bh/2 - bd)
+                lineTo(sx + bw, sy - bd)
+                lineTo(sx + bw/2, sy - bh/2 - bd)
+                close()
+            }
+            canvas.drawPath(top, paintTop)
+            canvas.drawPath(top, paintBorder)
 
-        paintLeft.color = colores.second
-        val left = Path().apply {
-            moveTo(sx, sy - bd)
-            lineTo(sx + bw / 2, sy + bh / 2 - bd)
-            lineTo(sx + bw / 2, sy + bh / 2)
-            lineTo(sx, sy)
-            close()
-        }
-        canvas.drawPath(left, paintLeft)
-        canvas.drawPath(left, paintBorder)
+            paintLeft.color = android.graphics.Color.DKGRAY
+            val left = Path().apply {
+                moveTo(sx, sy - bd)
+                lineTo(sx + bw/2, sy + bh/2 - bd)
+                lineTo(sx + bw/2, sy + bh/2)
+                lineTo(sx, sy)
+                close()
+            }
+            canvas.drawPath(left, paintLeft)
 
-        paintRight.color = colores.third
-        val right = Path().apply {
-            moveTo(sx + bw, sy - bd)
-            lineTo(sx + bw / 2, sy + bh / 2 - bd)
-            lineTo(sx + bw / 2, sy + bh / 2)
-            lineTo(sx + bw, sy)
-            close()
+            paintRight.color = android.graphics.Color.LTGRAY
+            val right = Path().apply {
+                moveTo(sx + bw, sy - bd)
+                lineTo(sx + bw/2, sy + bh/2 - bd)
+                lineTo(sx + bw/2, sy + bh/2)
+                lineTo(sx + bw, sy)
+                close()
+            }
+            canvas.drawPath(right, paintRight)
         }
-        canvas.drawPath(right, paintRight)
-        canvas.drawPath(right, paintBorder)
     }
-
     private fun celdaPath(sx: Float, sy: Float): Path {
         val bw = BLOCK_WIDTH * zoom
         val bh = BLOCK_HEIGHT * zoom
@@ -217,9 +321,13 @@ class IsometricView @JvmOverloads constructor(
         val relX = touchX - cameraX
         val relY = touchY - cameraY
 
-        // Invertir la proyección isométrica y rotación
-        val isoX = (relX / (BLOCK_WIDTH / 2) + relY / (BLOCK_HEIGHT / 2)) / 2
-        val isoZ = (relY / (BLOCK_HEIGHT / 2) - relX / (BLOCK_WIDTH / 2)) / 2
+        // ✅ Aplicar zoom igual que en toScreen()
+        val bw = BLOCK_WIDTH * zoom
+        val bh = BLOCK_HEIGHT * zoom
+
+        // Invertir la proyección isométrica con zoom
+        val isoX = (relX / (bw / 2) + relY / (bh / 2)) / 2
+        val isoZ = (relY / (bh / 2) - relX / (bw / 2)) / 2
 
         // Invertir rotación
         val col = (isoX * cos(-rotacion) - isoZ * sin(-rotacion) + GRID_SIZE / 2).toInt()
@@ -284,6 +392,11 @@ class IsometricView @JvmOverloads constructor(
                             dragStartX = event.x
                             dragStartY = event.y
                             isDragging = false
+                            // Mostrar celda hover
+                            val (col, fila) = toGrid(event.x, event.y)
+                            hoverCol = col
+                            hoverFila = fila
+                            invalidate()
                         }
                     }
                     MotionEvent.ACTION_MOVE -> {
@@ -297,27 +410,49 @@ class IsometricView @JvmOverloads constructor(
                                 (kotlin.math.abs(totalDx) > DRAG_THRESHOLD ||
                                         kotlin.math.abs(totalDy) > DRAG_THRESHOLD)) {
                                 isDragging = true
+                                hoverCol = -1
+                                hoverFila = -1
                             }
 
                             if (isDragging) {
                                 cameraX += dx
                                 cameraY += dy
-                                invalidate()
+                            } else {
+                                // Actualizar hover mientras el dedo se mueve
+                                val (col, fila) = toGrid(event.x, event.y)
+                                hoverCol = col
+                                hoverFila = fila
                             }
 
                             lastTouchX = event.x
                             lastTouchY = event.y
+                            invalidate()
                         }
                     }
                     MotionEvent.ACTION_UP -> {
+                        hoverCol = -1
+                        hoverFila = -1
                         if (!isDragging && !isRotating) {
                             val (col, fila) = toGrid(event.x, event.y)
                             val pila = bloques[fila][col]
 
-                            if (pila.size < MAX_HEIGHT) {
-                                val altura = pila.size
-                                pila.add(tipoSeleccionado)
-                                onBloqueColocado?.invoke(col, fila, altura, tipoSeleccionado)
+                            // ✅ Colocar en la altura seleccionada por el slider
+                            if (alturaSeleccionada < MAX_HEIGHT) {
+                                // Rellenar niveles vacíos debajo si es necesario
+                                while (pila.size < alturaSeleccionada) {
+                                    pila.add("")  // celda vacía — espacio aéreo
+                                }
+                                if (pila.size == alturaSeleccionada) {
+                                    // Nivel vacío — colocar bloque nuevo
+                                    pila.add(tipoSeleccionado)
+                                } else {
+                                    // Nivel ya ocupado — reemplazar
+                                    pila[alturaSeleccionada] = tipoSeleccionado
+                                }
+
+                                historialColocacion.addLast(Triple(col, fila, alturaSeleccionada))
+                                pilaRehacer.clear()
+                                onBloqueColocado?.invoke(col, fila, alturaSeleccionada, tipoSeleccionado)
                             } else {
                                 onBloqueColocado?.invoke(col, fila, -1, "limite")
                             }
@@ -349,18 +484,44 @@ class IsometricView @JvmOverloads constructor(
     }
 
     fun deshacerUltimo(): Triple<Int, Int, Int>? {
-        for (fila in GRID_SIZE - 1 downTo 0) {
-            for (col in GRID_SIZE - 1 downTo 0) {
-                val pila = bloques[fila][col]
-                if (pila.isNotEmpty()) {
-                    val altura = pila.size - 1
-                    pila.removeAt(altura)
-                    invalidate()
-                    return Triple(col, fila, altura)
-                }
-            }
+        if (historialColocacion.isEmpty()) return null
+
+        // Sacar el último bloque colocado en orden exacto
+        val (col, fila, altura) = historialColocacion.removeLast()
+        val pila = bloques[fila][col]
+
+        if (altura < pila.size && pila[altura].isNotEmpty()) {
+            val tipo = pila[altura]
+            pila[altura] = ""  // limpiar la posición
+
+            // Guardar en pila de rehacer
+            pilaRehacer.addLast(Triple(col * 1000 + fila, altura, tipo))
+            invalidate()
+            return Triple(col, fila, altura)
         }
+        invalidate()
         return null
+    }
+
+    fun rehacerUltimo(): Triple<Int, Int, Int>? {
+        if (pilaRehacer.isEmpty()) return null
+
+        val (colFila, altura, tipo) = pilaRehacer.removeLast()
+        val col = colFila / 1000
+        val fila = colFila % 1000
+
+        // Restaurar el bloque
+        val pilaBloque = bloques[fila][col]
+        while (pilaBloque.size <= altura) {
+            pilaBloque.add("")
+        }
+        pilaBloque[altura] = tipo
+        invalidate()
+        return Triple(col, fila, altura)
+    }
+
+    fun limpiarPilaRehacer() {
+        pilaRehacer.clear()
     }
     fun cargarBloques(listaBloques: List<Bloque>) {
         // Limpiar grid actual
@@ -426,6 +587,8 @@ class IsometricView @JvmOverloads constructor(
         for (fila in 0 until GRID_SIZE)
             for (col in 0 until GRID_SIZE)
                 bloques[fila][col].clear()
+        historialColocacion.clear()
+        pilaRehacer.clear()
         invalidate()
     }
 
@@ -433,5 +596,20 @@ class IsometricView @JvmOverloads constructor(
         val dx = event.getX(1) - event.getX(0)
         val dy = event.getY(1) - event.getY(0)
         return sqrt(dx * dx + dy * dy)
+    }
+
+
+    private fun cargarTexturas(context: Context) {
+        val todosLosBloques = BLOQUES_ESTRUCTURA + BLOQUES_DECORACION +
+                BLOQUES_NATURALEZA + BLOQUES_ESPECIALES
+        todosLosBloques.forEach { nombre ->
+            val resId = context.resources.getIdentifier(
+                nombre, "drawable", context.packageName
+            )
+            if (resId != 0) {
+                val bmp = BitmapFactory.decodeResource(context.resources, resId)
+                if (bmp != null) texturas[nombre] = bmp
+            }
+        }
     }
 }

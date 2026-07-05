@@ -48,8 +48,18 @@ class RegisterActivity : AppCompatActivity() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Toast.makeText(this, "✅ Usuario registrado exitosamente", Toast.LENGTH_SHORT).show()
-                        goToMain()
+                        // ✅ Guardar el nombre en el perfil de Firebase
+                        val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                            .setDisplayName(name)
+                            .build()
+
+                        auth.currentUser?.updateProfile(profileUpdates)
+                            ?.addOnCompleteListener { profileTask ->
+                                if (profileTask.isSuccessful) {
+                                    Toast.makeText(this, "✅ Bienvenido, $name!", Toast.LENGTH_SHORT).show()
+                                }
+                                goToMain()
+                            }
                     } else {
                         Toast.makeText(this, "❌ Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     }

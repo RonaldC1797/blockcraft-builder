@@ -39,7 +39,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Grid"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:checked="false" />
 
         <Button
             android:id="@+id/btnSave"
@@ -53,14 +54,92 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- ===== CANVAS 3D ISOMÉTRICO ===== -->
-    <com.cacuango.blockcraft.builder.ui.editor.IsometricView
-        android:id="@+id/isometricView"
+    <!-- ===== CANVAS + CONTROL DE NIVEL ===== -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#E8E8E8"
-        android:layout_margin="8dp" />
+        android:orientation="horizontal">
+
+        <!-- Canvas 3D -->
+        <com.cacuango.blockcraft.builder.ui.editor.IsometricView
+            android:id="@+id/isometricView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#E8E8E8"
+            android:layout_margin="8dp" />
+
+        <!-- Panel control de nivel -->
+        <LinearLayout
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="▲"
+                android:textSize="16sp"
+                android:textColor="#6C63FF"
+                android:gravity="center"
+                android:layout_marginBottom="4dp"/>
+
+            <Button
+                android:id="@+id/btnNivelSubir"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="+"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_button_primary"
+                android:padding="0dp"/>
+
+            <TextView
+                android:id="@+id/tvNivelActual"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#6C63FF"
+                android:gravity="center"
+                android:paddingTop="8dp"
+                android:paddingBottom="4dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="nivel"
+                android:textSize="9sp"
+                android:textColor="#888888"
+                android:gravity="center"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/btnNivelBajar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="-"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_button_primary"
+                android:padding="0dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="▼"
+                android:textSize="16sp"
+                android:textColor="#6C63FF"
+                android:gravity="center"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <!-- ===== UNDO / REDO ===== -->
     <LinearLayout
@@ -97,6 +176,60 @@
     </LinearLayout>
 
     <!-- ===== TABS DE CATEGORÍAS ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:background="#FFFFFF"
+        android:elevation="2dp">
+
+        <TextView
+            android:id="@+id/tabStructure"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Estructura"
+            android:gravity="center"
+            android:textColor="#6C63FF"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/tabDecoration"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Decoración"
+            android:gravity="center"
+            android:textColor="#333333"
+            android:textSize="12sp"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/tabNature"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Naturaleza"
+            android:gravity="center"
+            android:textColor="#333333"
+            android:textSize="12sp"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/tabSpecial"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Especiales"
+            android:gravity="center"
+            android:textColor="#333333"
+            android:textSize="12sp"
+            android:background="?attr/selectableItemBackground" />
+
+    </LinearLayout>
+
     <!-- ===== SELECTOR DE BLOQUES ===== -->
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -108,139 +241,13 @@
         <LinearLayout
             android:id="@+id/layoutBloques"
             android:layout_width="wrap_content"
-            android:layout_height="72dp"
+            android:layout_height="80dp"
             android:orientation="horizontal"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:gravity="center_vertical">
-
-            <!-- Bloque Madera -->
-            <LinearLayout
-                android:id="@+id/btnBloquesMadera"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_bloque_seleccionado"
-                android:layout_marginEnd="8dp">
-                <View
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="#B5651D"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Madera"
-                    android:textSize="8sp"
-                    android:textColor="#333333"/>
-            </LinearLayout>
-
-            <!-- Bloque Piedra -->
-            <LinearLayout
-                android:id="@+id/btnBloquesPiedra"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_bloque_normal"
-                android:layout_marginEnd="8dp">
-                <View
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="#808080"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Piedra"
-                    android:textSize="8sp"
-                    android:textColor="#333333"/>
-            </LinearLayout>
-
-            <!-- Bloque Ladrillo -->
-            <LinearLayout
-                android:id="@+id/btnBloquesLadrillo"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_bloque_normal"
-                android:layout_marginEnd="8dp">
-                <View
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="#CC4444"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ladrillo"
-                    android:textSize="8sp"
-                    android:textColor="#333333"/>
-            </LinearLayout>
-
-            <!-- Bloque Tierra -->
-            <LinearLayout
-                android:id="@+id/btnBloquesTierra"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_bloque_normal"
-                android:layout_marginEnd="8dp">
-                <View
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="#8B6914"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tierra"
-                    android:textSize="8sp"
-                    android:textColor="#333333"/>
-            </LinearLayout>
-
-            <!-- Bloque Arena -->
-            <LinearLayout
-                android:id="@+id/btnBloquesArena"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_bloque_normal"
-                android:layout_marginEnd="8dp">
-                <View
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="#F4D03F"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Arena"
-                    android:textSize="8sp"
-                    android:textColor="#333333"/>
-            </LinearLayout>
-
-            <!-- Bloque Cristal -->
-            <LinearLayout
-                android:id="@+id/btnBloquesCristal"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_bloque_normal"
-                android:layout_marginEnd="8dp">
-                <View
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="#85C1E9"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cristal"
-                    android:textSize="8sp"
-                    android:textColor="#333333"/>
-            </LinearLayout>
-
         </LinearLayout>
+
     </HorizontalScrollView>
 
 </LinearLayout>

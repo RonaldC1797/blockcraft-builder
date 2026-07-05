@@ -13,11 +13,12 @@ data class Proyecto(
     val fechaModificacion: String,
     val camaraX: Float,
     val camaraY: Float,
-    val camaraZ: Float
-
+    val camaraZ: Float,
+    val categoria: String = "Todos"
 )
 
 // ✅ AGREGAR ESTA ENTIDAD - Te falta esta
+
 @Entity(tableName = "bloques")
 data class Bloque(
     @PrimaryKey(autoGenerate = true)

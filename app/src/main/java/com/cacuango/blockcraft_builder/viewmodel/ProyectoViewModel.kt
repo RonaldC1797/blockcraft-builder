@@ -31,6 +31,10 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
 
     // ===== LIVEDATA =====
 
+    private val _totalBloques = MutableLiveData<Int>()
+    val totalBloques: LiveData<Int> = _totalBloques
+
+
     private val _bloquesDelProyecto = MutableLiveData<List<Bloque>>()
     val bloquesDelProyecto: LiveData<List<Bloque>> = _bloquesDelProyecto
 
@@ -83,7 +87,7 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun crearProyecto(nombre: String) {
+    fun crearProyecto(nombre: String, categoria: String = "Todos") {
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -105,15 +109,14 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                     fechaModificacion = fechaActual,
                     camaraX = 0f,
                     camaraY = 0f,
-                    camaraZ = 0f
+                    camaraZ = 0f,
+                    categoria = categoria  // ← agregar
                 )
 
                 val id = withContext(Dispatchers.IO) {
                     repository.guardarProyecto(proyecto)
                 }
-
                 _proyectoCreado.postValue(id.toInt())
-                // ✅ Ya no necesita cargarTodosLosProyectos() — Flow lo hace solo
 
             } catch (e: Exception) {
                 Log.e("ProyectoViewModel", "Error al crear proyecto", e)
@@ -123,7 +126,6 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
-
     fun guardarProyecto(id: Int) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -219,6 +221,37 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                 if (proyecto != null) {
                     val actualizado = proyecto.copy(
                         nombre = nuevoNombre,
+                        fechaModificacion = System.currentTimeMillis().toString()
+                    )
+                    withContext(Dispatchers.IO) {
+                        repository.guardarProyecto(actualizado)
+                    }
+                    _proyectoCreado.postValue(actualizado.id)
+                }
+            } catch (e: Exception) {
+                Log.e("ProyectoViewModel", "Error al actualizar proyecto", e)
+                _error.postValue("No se pudo actualizar el proyecto.")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun filtrarPorCategoria(categoria: String): LiveData<List<Proyecto>> {
+        return repository.obtenerProyectosPorCategoria(categoria).asLiveData()
+    }
+
+    fun actualizarProyecto(id: Int, nuevoNombre: String, nuevaCategoria: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val proyecto = withContext(Dispatchers.IO) {
+                    repository.obtenerProyectoPorId(id)
+                }
+                if (proyecto != null) {
+                    val actualizado = proyecto.copy(
+                        nombre = nuevoNombre,
+                        categoria = nuevaCategoria,
                         fechaModificacion = System.currentTimeMillis().toString()
                     )
                     withContext(Dispatchers.IO) {
@@ -406,6 +439,25 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
 
     fun activarCuadricula(activa: Boolean) {
 
+    }
+
+    fun cargarEstadisticas() {
+        viewModelScope.launch {
+            try {
+                val proyectos = withContext(Dispatchers.IO) {
+                    repository.obtenerTodosLosProyectosSuspend()
+                }
+                var total = 0
+                proyectos.forEach { proyecto ->
+                    total += withContext(Dispatchers.IO) {
+                        repository.contarBloquesPorProyecto(proyecto.id)
+                    }
+                }
+                _totalBloques.postValue(total)
+            } catch (e: Exception) {
+                Log.e("ProyectoViewModel", "Error al cargar estadísticas", e)
+            }
+        }
     }
 
 

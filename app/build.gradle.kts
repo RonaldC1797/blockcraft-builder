@@ -16,6 +16,11 @@ plugins {
             versionName = "1.0"
 
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            testInstrumentationRunnerArguments["clearPackageData"] = "true"
+        }
+        testOptions {
+            execution = "ANDROIDX_TEST_ORCHESTRATOR"
+            animationsDisabled = true  // ← importante para Espresso en API 33+
         }
 
         buildTypes {
@@ -68,6 +73,16 @@ plugins {
         androidTestImplementation("androidx.test.ext:junit:1.1.5")
         androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
+        // ── Pruebas de integración con Room in-memory ───────
+        androidTestImplementation("androidx.test.ext:junit:1.2.1")
+        androidTestImplementation("androidx.test:core:1.6.1")
+        androidTestImplementation("androidx.room:room-testing:2.6.1")
+        androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+        androidTestImplementation("androidx.test:runner:1.6.1")
+        androidTestImplementation("androidx.test:rules:1.6.1")
+
+        androidTestImplementation("androidx.test:runner:1.6.1")
+        androidTestUtil("androidx.test:orchestrator:1.5.0")
 
         implementation("androidx.work:work-runtime-ktx:2.9.0")
 

@@ -24,7 +24,6 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- ✅ BOTÓN NOTIFICACIONES -->
         <ImageButton
             android:id="@+id/btnNotifications"
             android:layout_width="48dp"
@@ -68,7 +67,6 @@
 
         </LinearLayout>
 
-        <!-- ✅ BOTÓN CERRAR SESIÓN (LOGOUT) -->
         <ImageButton
             android:id="@+id/btnLogout"
             android:layout_width="48dp"
@@ -192,7 +190,7 @@
                 android:id="@+id/tvBlocksCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="14.2k"
+                android:text="0"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/verde_bosque" />
@@ -221,7 +219,7 @@
                 android:id="@+id/tvHoursCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="128h"
+                android:text="0h"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/verde_bosque" />
@@ -267,7 +265,7 @@
 
     </LinearLayout>
 
-    <!-- ===== RECYCLER VIEW PARA MUNDOS ===== -->
+    <!-- ===== RECYCLER VIEW ===== -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMundos"
         android:layout_width="match_parent"
@@ -293,7 +291,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:src="@drawable/ic_empty_world"
-            android:tint="@color/verde_bosque"
+            app:tint="@color/verde_bosque"
             android:alpha="0.5" />
 
         <TextView
@@ -316,7 +314,7 @@
 
     </LinearLayout>
 
-    <!-- ===== BOTTOM NAVIGATION ===== -->
+    <!-- ===== BOTTOM NAVIGATION — 3 botones visibles ===== -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
@@ -324,8 +322,9 @@
         android:background="#FFFFFF"
         app:elevation="8dp"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/text_secondary"
-        app:itemTextColor="@color/text_secondary"
+        app:itemIconTint="@color/verde_bosque"
+        app:itemTextColor="@color/verde_bosque"
+        app:labelVisibilityMode="labeled"
         app:itemRippleColor="@android:color/transparent" />
 
 </LinearLayout>

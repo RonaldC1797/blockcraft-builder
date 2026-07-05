@@ -15,6 +15,11 @@ import com.cacuango.blockcraft.builder.data.local.entity.HistorialAccion
 import kotlinx.coroutines.launch
 import com.cacuango.blockcraft.builder.data.local.dao.TipoBloqueDao
 import com.cacuango.blockcraft.builder.data.local.dao.HistorialAccionDao
+
+
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 class BlockcraftApp : Application() {
 
     companion object {
@@ -112,9 +117,13 @@ class BlockcraftApp : Application() {
         )
 
         kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            val db = AppDatabase.getInstance(applicationContext)
-            tiposIniciales.forEach { tipo ->
-                db.tipoBloqueDao().insertarTipoBloque(tipo)
+            try {
+                val db = AppDatabase.getInstance(applicationContext)
+                tiposIniciales.forEach { tipo ->
+                    db.tipoBloqueDao().insertarTipoBloque(tipo)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("BlockcraftApp", "Error poblando tipos: ${e.message}")
             }
         }
     }

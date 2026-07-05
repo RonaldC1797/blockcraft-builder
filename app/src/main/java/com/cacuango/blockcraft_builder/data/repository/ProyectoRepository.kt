@@ -24,6 +24,14 @@ class ProyectoRepository(
 
     // ==================== PROYECTOS ====================
 
+
+    fun obtenerProyectosPorCategoria(categoria: String): Flow<List<Proyecto>> {
+        return proyectoDao.obtenerProyectosPorCategoria(categoria)
+    }
+
+    suspend fun obtenerProyectosPorCategoriaSuspend(categoria: String): List<Proyecto> {
+        return proyectoDao.obtenerProyectosPorCategoriaSuspend(categoria)
+    }
     fun obtenerProyectosFlow(): Flow<List<Proyecto>> {
         return proyectoDao.obtenerTodosLosProyectos()
 

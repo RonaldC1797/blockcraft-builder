@@ -32,7 +32,7 @@ import com.cacuango.blockcraft.builder.ui.load.MundoAdapter
 import com.cacuango.blockcraft.builder.viewmodel.ProyectoViewModel
 import com.cacuango.blockcraft_builder.workers.RecordatorioWorker
 import androidx.lifecycle.ViewModelProvider
-
+import com.cacuango.blockcraft.builder.ui.editor.EditorActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -190,14 +190,22 @@ class MainActivity : AppCompatActivity() {
         // Crear adapter con sus callbacks
         adapter = MundoAdapter(
             onItemClick = { proyecto ->
+                // Abre formulario de edición (igual que antes)
                 val intent = Intent(this, CreateProjectActivity::class.java).apply {
+                    putExtra("PROYECTO_ID", proyecto.id)
+                    putExtra("NOMBRE_PROYECTO", proyecto.nombre)
+                    putExtra("CATEGORIA_PROYECTO", proyecto.categoria)
+                }
+                startActivity(intent)
+            },
+            onDeleteClick = { proyecto -> mostrarDialogoConfirmacion(proyecto) },
+            onCargarClick = { proyecto ->
+                // ✅ Flecha va directo al editor
+                val intent = Intent(this, EditorActivity::class.java).apply {
                     putExtra("PROYECTO_ID", proyecto.id)
                     putExtra("NOMBRE_PROYECTO", proyecto.nombre)
                 }
                 startActivity(intent)
-            },
-            onDeleteClick = { proyecto ->
-                mostrarDialogoConfirmacion(proyecto)
             }
         )
 
@@ -217,6 +225,18 @@ class MainActivity : AppCompatActivity() {
                 llEmptyState.visibility = View.GONE
                 recyclerViewMundos.visibility = View.VISIBLE
                 adapter.actualizarLista(proyectos)
+                tvHoursCount.text = "${proyectos.size * 2}h"  // ← AGREGAR
+                viewModel.cargarEstadisticas()                  // ← AGREGAR
+            }
+        }
+
+
+        // ✅ Observer de bloques totales
+        viewModel.totalBloques.observe(this) { total ->
+            tvBlocksCount.text = if (total >= 1000) {
+                String.format("%.1fk", total / 1000f)
+            } else {
+                total.toString()
             }
         }
     }
@@ -265,20 +285,43 @@ class MainActivity : AppCompatActivity() {
     private fun setupTabs() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                val position = tab?.position ?: 0
-                val filter = when (position) {
+                val categoria = when (tab?.position) {
                     0 -> "Todos"
                     1 -> "Naturaleza"
                     2 -> "Construcción"
                     3 -> "Mecanismo"
                     else -> "Todos"
                 }
-                Toast.makeText(this@MainActivity, "Filtrando: $filter", Toast.LENGTH_SHORT).show()
+                filtrarPorCategoria(categoria)
             }
-
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
+    }
+
+    private fun filtrarPorCategoria(categoria: String) {
+        if (categoria == "Todos") {
+            viewModel.proyectosLiveData.observe(this) { proyectos ->
+                actualizarLista(proyectos)
+            }
+        } else {
+            viewModel.filtrarPorCategoria(categoria).observe(this) { proyectos ->
+                actualizarLista(proyectos)
+            }
+        }
+    }
+
+    private fun actualizarLista(proyectos: List<Proyecto>) {
+        if (proyectos.isNullOrEmpty()) {
+            llEmptyState.visibility = View.VISIBLE
+            recyclerViewMundos.visibility = View.GONE
+        } else {
+            llEmptyState.visibility = View.GONE
+            recyclerViewMundos.visibility = View.VISIBLE
+            adapter.actualizarLista(proyectos)
+            tvHoursCount.text = "${proyectos.size * 2}h"
+            viewModel.cargarEstadisticas()
+        }
     }
 
     private fun setupBottomNav() {
@@ -290,11 +333,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_inventory -> {
-                    Toast.makeText(this, "Inventario", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                R.id.nav_profile -> {
-                    Toast.makeText(this, "Perfil", Toast.LENGTH_SHORT).show()
+                    mostrarInventario()
                     true
                 }
                 else -> false
@@ -302,10 +341,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun mostrarDatosEjemplo() {
-        tvBlocksCount.text = "14.2k"
-        tvHoursCount.text = "128h"
-    }
 
     private fun mostrarEstadoVacio() {
         llEmptyState.visibility = View.VISIBLE
@@ -332,7 +367,10 @@ class MainActivity : AppCompatActivity() {
             }
             .show()
     }
-
+    private fun mostrarInventario() {
+        val bottomSheet = InventarioBottomSheet()
+        bottomSheet.show(supportFragmentManager, "inventario")
+    }
     private fun goToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -344,6 +382,8 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         if (auth.currentUser == null) {
             goToLogin()
+        }else {
+            viewModel.cargarEstadisticas()  // ← AGREGAR
         }
     }
 }

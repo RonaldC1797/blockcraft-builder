@@ -39,7 +39,7 @@
     <!-- ===== IMAGEN DE FONDO ===== -->
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_height="140dp"
         android:src="@drawable/ic_empty_world"
         android:scaleType="centerCrop"
         android:layout_marginTop="16dp"
@@ -51,7 +51,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:hint="Nombre del proyecto"
@@ -86,7 +86,6 @@
         android:layout_marginEnd="16dp"
         android:gravity="center" />
 
-    <!-- ===== TEXTO DE EJEMPLO ===== -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -98,13 +97,79 @@
         android:layout_marginEnd="16dp"
         android:gravity="center" />
 
+    <!-- ===== SELECTOR DE CATEGORÍA ===== -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Categoría del mundo"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"/>
+
+    <LinearLayout
+        android:id="@+id/layoutCategorias"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/btnCategoriaTodos"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Todos"
+            android:textSize="10sp"
+            android:background="@drawable/bg_button_primary"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="4dp"/>
+
+        <Button
+            android:id="@+id/btnCategoriaNaturaleza"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Naturaleza"
+            android:textSize="10sp"
+            android:background="@drawable/bg_button_outline"
+            android:textColor="#6C63FF"
+            android:layout_marginEnd="4dp"/>
+
+        <Button
+            android:id="@+id/btnCategoriaConstructor"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Construcción"
+            android:textSize="10sp"
+            android:background="@drawable/bg_button_outline"
+            android:textColor="#6C63FF"
+            android:layout_marginEnd="4dp"/>
+
+        <Button
+            android:id="@+id/btnCategoriaMecanismo"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Mecanismo"
+            android:textSize="10sp"
+            android:background="@drawable/bg_button_outline"
+            android:textColor="#6C63FF"/>
+
+    </LinearLayout>
+
     <!-- ===== SPACER ===== -->
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- ===== ✅ PROGRESS BAR AGREGADO ===== -->
+    <!-- ===== PROGRESS BAR ===== -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"

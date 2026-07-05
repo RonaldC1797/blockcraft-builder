@@ -5,6 +5,10 @@ ksp = "2.1.0-1.0.29"
 room = "2.6.1"
 lifecycle = "2.8.7"
 
+junit = "4.13.2"
+junit-ext = "1.2.1"
+coroutines-test = "1.7.3"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version = "1.12.0" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version = "1.6.1" }
@@ -16,6 +20,13 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit-ext" }
+androidx-test-core = { group = "androidx.test", name = "core", version = "1.6.1" }
+room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
+coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-test" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

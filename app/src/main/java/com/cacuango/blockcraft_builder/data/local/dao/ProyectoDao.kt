@@ -47,4 +47,12 @@ interface ProyectoDao {
     // ===== SELECT - CONTAR =====
     @Query("SELECT COUNT(*) FROM proyectos")
     suspend fun contarProyectos(): Int
+
+
+    @Query("SELECT * FROM proyectos WHERE categoria = :categoria ORDER BY fechaModificacion DESC")
+    fun obtenerProyectosPorCategoria(categoria: String): Flow<List<Proyecto>>
+
+    @Query("SELECT * FROM proyectos WHERE categoria = :categoria ORDER BY fechaModificacion DESC")
+    suspend fun obtenerProyectosPorCategoriaSuspend(categoria: String): List<Proyecto>
+
 }

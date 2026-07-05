@@ -88,50 +88,131 @@ class EditorActivity : AppCompatActivity() {
             viewModel.guardarProyecto(proyectoId)
         }
 
-        binding.btnUndo.setOnClickListener {
-            val resultado = binding.isometricView.deshacerUltimo()
-            if (resultado == null) {
-                Toast.makeText(this, "No hay bloques para deshacer", Toast.LENGTH_SHORT).show()
+        // ===== BOTONES DE NIVEL =====
+        var nivelActual = 0
+
+        binding.btnNivelSubir.setOnClickListener {
+            if (nivelActual < 9) {
+                nivelActual++
+                binding.tvNivelActual.text = nivelActual.toString()
+                binding.isometricView.setAlturaSeleccionada(nivelActual)
             }
         }
 
-        binding.btnRedo.setOnClickListener {
-            Toast.makeText(this, "↪ Rehacer no disponible aún", Toast.LENGTH_SHORT).show()
+        binding.btnNivelBajar.setOnClickListener {
+            if (nivelActual > 0) {
+                nivelActual--
+                binding.tvNivelActual.text = nivelActual.toString()
+                binding.isometricView.setAlturaSeleccionada(nivelActual)
+            }
         }
 
+
+        binding.btnRedo.setOnClickListener {
+            val resultado = binding.isometricView.rehacerUltimo()
+            if (resultado != null) {
+                val (col, fila, altura) = resultado
+                viewModel.agregarBloque(proyectoId, tipoActual, col, altura, fila)
+                viewModel.registrarAccion(
+                    proyectoId = proyectoId,
+                    tipoAccion = "COLOCAR",
+                    tipoBloque = tipoActual,
+                    posX = col, posY = altura, posZ = fila,
+                    orden = ++ordenAccion
+                )
+            } else {
+                Toast.makeText(this, "No hay acciones para rehacer", Toast.LENGTH_SHORT).show()
+            }
+        }
         binding.switchGrid.setOnCheckedChangeListener { _, isChecked ->
             binding.isometricView.mostrarCuadricula(isChecked)
         }
 
-        // ===== SELECTOR VISUAL DE BLOQUES =====
-        val botonesBloques = listOf(
-            Pair(binding.btnBloquesMadera, "madera"),
-            Pair(binding.btnBloquesPiedra, "piedra"),
-            Pair(binding.btnBloquesLadrillo, "ladrillo"),
-            Pair(binding.btnBloquesTierra, "tierra"),
-            Pair(binding.btnBloquesArena, "arena"),
-            Pair(binding.btnBloquesCristal, "cristal")
-        )
+        // Categoría por defecto
+        cargarBloquesDeCategoría("Estructura")
 
-        botonesBloques.forEach { (boton, tipo) ->
-            boton.setOnClickListener {
-                // Resetear todos a normal
-                botonesBloques.forEach { (b, _) ->
-                    b.setBackgroundResource(R.drawable.bg_bloque_normal)
-                }
-                // Marcar seleccionado
-                boton.setBackgroundResource(R.drawable.bg_bloque_seleccionado)
-                bloqueSeleccionadoView = boton
-                // Actualizar tipo en el motor
-                tipoActual = tipo
-                binding.isometricView.setTipoSeleccionado(tipo)
-            }
+        // Tabs de categorías
+        binding.tabStructure.setOnClickListener { cargarBloquesDeCategoría("Estructura") }
+        binding.tabDecoration.setOnClickListener { cargarBloquesDeCategoría("Decoración") }
+        binding.tabNature.setOnClickListener { cargarBloquesDeCategoría("Naturaleza") }
+        binding.tabSpecial.setOnClickListener { cargarBloquesDeCategoría("Especiales") }
+    }
+
+    private fun cargarBloquesDeCategoría(categoria: String) {
+        // Resetear color de todos los tabs
+        binding.tabStructure.setTextColor(
+            resources.getColor(android.R.color.black, null))
+        binding.tabDecoration.setTextColor(
+            resources.getColor(android.R.color.black, null))
+        binding.tabNature.setTextColor(
+            resources.getColor(android.R.color.black, null))
+        binding.tabSpecial.setTextColor(
+            resources.getColor(android.R.color.black, null))
+
+        // Marcar tab activo
+        val colorActivo = resources.getColor(R.color.purple_500, null)
+        when (categoria) {
+            "Estructura" -> binding.tabStructure.setTextColor(colorActivo)
+            "Decoración" -> binding.tabDecoration.setTextColor(colorActivo)
+            "Naturaleza" -> binding.tabNature.setTextColor(colorActivo)
+            "Especiales" -> binding.tabSpecial.setTextColor(colorActivo)
         }
 
-        // Seleccionar Madera por defecto
-        binding.btnBloquesMadera.setBackgroundResource(R.drawable.bg_bloque_seleccionado)
-        bloqueSeleccionadoView = binding.btnBloquesMadera
-        binding.isometricView.setTipoSeleccionado("madera")
+        // Obtener lista de bloques
+        val lista: List<String> = when (categoria) {
+            "Estructura" -> IsometricView.BLOQUES_ESTRUCTURA
+            "Decoración" -> IsometricView.BLOQUES_DECORACION
+            "Naturaleza" -> IsometricView.BLOQUES_NATURALEZA
+            "Especiales" -> IsometricView.BLOQUES_ESPECIALES
+            else         -> IsometricView.BLOQUES_ESTRUCTURA
+        }
+
+        // Reconstruir barra de bloques
+        binding.layoutBloques.removeAllViews()
+
+        lista.forEach { nombreBloque ->
+            val resId = resources.getIdentifier(
+                nombreBloque, "drawable", packageName
+            )
+
+            val item = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                gravity = android.view.Gravity.CENTER
+                setBackgroundResource(R.drawable.bg_bloque_normal)
+                val lp = android.widget.LinearLayout.LayoutParams(72, 72)
+                lp.marginEnd = 8
+                layoutParams = lp
+                setPadding(4, 4, 4, 4)
+            }
+
+            val img = android.widget.ImageView(this).apply {
+                val lp = android.widget.LinearLayout.LayoutParams(52, 52)
+                layoutParams = lp
+                scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+                if (resId != 0) setImageResource(resId)
+            }
+
+            item.addView(img)
+            item.setOnClickListener {
+                for (i in 0 until binding.layoutBloques.childCount) {
+                    binding.layoutBloques.getChildAt(i)
+                        .setBackgroundResource(R.drawable.bg_bloque_normal)
+                }
+                item.setBackgroundResource(R.drawable.bg_bloque_seleccionado)
+                tipoActual = nombreBloque
+                binding.isometricView.setTipoSeleccionado(nombreBloque)
+            }
+
+            binding.layoutBloques.addView(item)
+        }
+
+        // Seleccionar primero por defecto
+        if (lista.isNotEmpty()) {
+            tipoActual = lista[0]
+            binding.isometricView.setTipoSeleccionado(lista[0])
+            binding.layoutBloques.getChildAt(0)
+                ?.setBackgroundResource(R.drawable.bg_bloque_seleccionado)
+        }
     }
 
 

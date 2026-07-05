@@ -41,17 +41,23 @@ class LoadWorldActivity : AppCompatActivity() {
 
     private fun setupUI() {
         adapter = MundoAdapter(
-            onItemClick = { mundo ->
-                // ✅ PATRÓN: Direct manipulation — abre formulario precargado
+            onItemClick = { proyecto ->
+                // Abre formulario de edición (igual que antes)
                 val intent = Intent(this, CreateProjectActivity::class.java).apply {
-                    putExtra("PROYECTO_ID", mundo.id)
-                    putExtra("NOMBRE_PROYECTO", mundo.nombre)
+                    putExtra("PROYECTO_ID", proyecto.id)
+                    putExtra("NOMBRE_PROYECTO", proyecto.nombre)
+                    putExtra("CATEGORIA_PROYECTO", proyecto.categoria)
                 }
                 startActivity(intent)
             },
-            onDeleteClick = { mundo ->
-                // ✅ PATRÓN: Confirmación explícita — AlertDialog antes de destruir
-                mostrarDialogoConfirmacion(mundo)
+            onDeleteClick = { proyecto -> mostrarDialogoConfirmacion(proyecto) },
+            onCargarClick = { proyecto ->
+                // ✅ Flecha va directo al editor
+                val intent = Intent(this, EditorActivity::class.java).apply {
+                    putExtra("PROYECTO_ID", proyecto.id)
+                    putExtra("NOMBRE_PROYECTO", proyecto.nombre)
+                }
+                startActivity(intent)
             }
         )
 
