@@ -2,8 +2,7 @@
 
 > **Construye sin límites. Sin conexión. Sin complicaciones.**
 
-Aplicación Android nativa de construcción 3D con bloques, diseñada para
-usuarios de 8 a 16 años. Funciona 100% offline con Room Database.
+Aplicación Android nativa de construcción 3D con bloques, diseñada para usuarios de 8 a 16 años. Funciona 100% offline con Room Database.
 
 ---
 
@@ -22,8 +21,7 @@ usuarios de 8 a 16 años. Funciona 100% offline con Room Database.
 
 ## 🚧 Descripción del Problema
 
-Los juegos de construcción más populares del mercado móvil presentan
-barreras que frustran la experiencia:
+Los juegos de construcción más populares del mercado móvil presentan barreras que frustran la experiencia:
 
 - **Complejidad elevada** — curvas de aprendizaje empinadas
 - **Dependencia de Internet** — requieren conexión constante
@@ -53,26 +51,28 @@ barreras que frustran la experiencia:
 
 La app sigue el patrón **MVVM** con separación estricta de capas:
 
+```
 UI (Activity / RecyclerView)
-↓ observa LiveData ↑
+        ↓ observa LiveData ↑
 ViewModel (ProyectoViewModel)
-↓ delega ↑
+        ↓ delega ↑
 Repository (ProyectoRepository)
-↓ consulta ↑
+        ↓ consulta ↑
 DAO (ProyectoDao / BloqueDao)
-↓ persiste ↑
+        ↓ persiste ↑
 Room Database (blockcraft_database — SQLite)
+```
 
-
-**Regla principal:** Cada capa solo se comunica con la
-capa inmediatamente vecina. La UI nunca accede al DAO directamente.
+**Regla principal:** Cada capa solo se comunica con la capa inmediatamente vecina. La UI nunca accede al DAO directamente.
 
 ### Entidades Room
 
 | Entidad | Campos principales |
 |---|---|
-| `Proyecto` | id, nombre, tipo, bioma, fechaCreacion, cantidadBloques |
-| `Bloque` | id, proyectoId (FK), tipo, posX, posY, posZ |
+| `Proyecto` | id, nombre, fechaCreacion, fechaModificacion, categoria |
+| `Bloque` | id, proyectoId (FK), tipoId, posX, posY, posZ |
+| `TipoBloque` | id, nombre_display, activo, orden_paleta |
+| `HistorialAccion` | id, id_proyecto, tipo_accion, tipo_bloque, pos_x, pos_y, pos_z, orden |
 
 ---
 
@@ -87,7 +87,8 @@ capa inmediatamente vecina. La UI nunca accede al DAO directamente.
 | **Notificaciones** | WorkManager + NotificationCompat |
 | **Autenticación** | Firebase Authentication |
 | **UI Components** | Material Design 3 |
-| **Listas** | RecyclerView + DiffUtil |
+| **Motor 3D** | IsometricView (Canvas personalizado) |
+| **Texturas** | Kenney Isometric Blocks (CC0) |
 | **IDE** | Android Studio |
 | **Control versiones** | Git + GitHub |
 
@@ -95,38 +96,38 @@ capa inmediatamente vecina. La UI nunca accede al DAO directamente.
 
 ```
 app/src/main/java/com/cacuango/blockcraft_builder/
-├── BlockcraftApp.kt
+├── BlockcraftApp.kt               # Application class + canales de notificación
 ├── data/
 │   ├── local/
-│   │   ├── dao/              # ProyectoDao, BloqueDao
-│   │   ├── database/         # AppDatabase (Room Singleton)
-│   │   └── Entity/           # Proyecto, Bloque
-│   └── repository/           # ProyectoRepository
+│   │   ├── dao/                   # ProyectoDao, BloqueDao, TipoBloqueDao, HistorialAccionDao
+│   │   ├── database/              # AppDatabase (Room Singleton)
+│   │   └── Entity/                # Proyecto, Bloque, TipoBloque, HistorialAccion
+│   └── repository/                # ProyectoRepository
 ├── ui/
-│   ├── auth/                 # LoginActivity, RegisterActivity
-│   ├── create/               # CreateProjectActivity
-│   ├── editor/               # EditorActivity
-│   ├── home/                 # MainActivity
-│   └── load/                 # LoadWorldActivity, MundoAdapter
-├── viewmodel/                # ProyectoViewModel
-└── workers/                  # RecordatorioWorker
+│   ├── auth/                      # LoginActivity, RegisterActivity
+│   ├── create/                    # CreateProjectActivity (crear + editar)
+│   ├── editor/                    # EditorActivity + IsometricView (motor 3D)
+│   ├── home/                      # MainActivity + InventarioBottomSheet
+│   └── load/                      # LoadWorldActivity, MundoAdapter
+├── viewmodel/                     # ProyectoViewModel
+└── workers/                       # RecordatorioWorker (WorkManager)
 ```
+
+---
 
 ## 🔔 Notificaciones Locales
 
-La app no consume ninguna API REST externa. Funciona completamente
-offline. Las notificaciones se implementan con **WorkManager**:
+La app no consume ninguna API REST externa. Funciona completamente offline. Las notificaciones se implementan con **WorkManager**:
 
 | Canal | Descripción | Frecuencia | HU |
 |---|---|---|---|
 | `canal_recordatorios` | Proyecto sin abrir en 3 días | Cada 3 días | HU-01 |
 | `canal_guardado` | Confirmación de guardado automático | Cada 5 min (activo) | HU-01 |
-| `canal_logros` | Hito de bloques alcanzado | Al superar umbral | HU-02, HU-05 |
+| `canal_logros` | Hitos de bloques colocados | Al superar umbral | HU-02, HU-05 |
 | `canal_exportacion` | Captura lista en galería | Inmediata | HU-04 |
 
 **¿Por qué WorkManager y no AlarmManager?**
-WorkManager respeta las restricciones de batería, sobrevive a
-reinicios del dispositivo y garantiza ejecución aunque la app esté cerrada.
+WorkManager respeta las restricciones de batería, sobrevive a reinicios del dispositivo y garantiza ejecución aunque la app esté cerrada.
 
 ---
 
@@ -141,19 +142,20 @@ reinicios del dispositivo y garantiza ejecución aunque la app esté cerrada.
 1. Iniciar sesión con email y contraseña
 2. Tocar **"Nuevo mundo"** en la pantalla principal
 3. Escribir un nombre (mín. 3 caracteres, solo letras y números)
-4. Tocar **"Start Building"**
-5. Verificar que el proyecto aparece en **"Cargar mundo"**
+4. Seleccionar una categoría (Todos / Naturaleza / Construcción / Mecanismo)
+5. Tocar **"Start Building"**
+6. Verificar que el proyecto aparece en **"Cargar mundo"**
 
 ### READ — Ver la lista de proyectos
 1. Tocar **"Cargar mundo"** desde la pantalla principal
 2. Verificar que aparecen todos los proyectos creados
 3. Usar la **barra de búsqueda** para filtrar por nombre
-4. Usar los **chips** (Todos / Pradera / Desierto / Nieve) para filtrar
+4. Usar los **chips** para filtrar por bioma
 
 ### UPDATE — Editar un proyecto
 1. En **"Cargar mundo"** tocar el botón **"Cargar mundo"** de cualquier ítem
-2. Verificar que el formulario se abre con el **nombre precargado**
-3. Cambiar el nombre y tocar **"Guardar cambios"**
+2. Verificar que el formulario se abre con el **nombre y categoría precargados**
+3. Cambiar el nombre y/o categoría y tocar **"Guardar cambios"**
 4. Verificar que la lista muestra el **nombre actualizado**
 
 ### DELETE — Eliminar un proyecto
@@ -177,27 +179,36 @@ reinicios del dispositivo y garantiza ejecución aunque la app esté cerrada.
 |---|---|---|
 | ![Login](capturas/login.png) | ![Main](capturas/main.png) | ![Create](capturas/create.png) |
 
-| Lista de Proyectos | Confirmar Eliminación | Notificación |
+| Lista de Proyectos | Confirmar Eliminación | Editor 3D |
 |---|---|---|
-| ![Load](capturas/load.png) | ![Delete](capturas/delete.png) | ![Notif](capturas/notif.png) |
+| ![Load](capturas/load.png) | ![Delete](capturas/delete.png) | ![Editor](capturas/editor.png) |
 
 ---
 
 ## 📊 Estado del Proyecto
 
-[████████████████░░░░]  80% completado
+```
+[████████████████████░░░░]  85% completado
+```
 
 | Fase | Estado |
 |---|---|
 | ✅ Prototipo Figma | Completado |
 | ✅ Entorno Android Studio | Completado |
 | ✅ Firebase Authentication | Completado |
-| ✅ Room Database + DAOs | Completado |
+| ✅ Room Database + DAOs (4 entidades) | Completado |
 | ✅ CRUD completo (Proyecto) | Completado |
 | ✅ RecyclerView + Adapter | Completado |
+| ✅ Motor 3D isométrico (IsometricView) | Completado |
+| ✅ Texturas Kenney Isometric Blocks | Completado |
+| ✅ Control de nivel (+/-) para apilar bloques | Completado |
+| ✅ Zoom, rotación y movimiento de cámara | Completado |
 | ✅ Notificaciones WorkManager | Completado |
-| 🔄 Renderizado grid 3D | En progreso |
-| ⏳ Pruebas en dispositivo físico | Pendiente |
+| ✅ Pruebas unitarias (13 tests) | Completado |
+| ✅ Pruebas de integración Room (9 tests) | Completado |
+| ✅ Pruebas UI Espresso (4 tests) | Completado |
+| ✅ Focus group (3 participantes, 4.89/5) | Completado |
+| ⏳ Exportar y compartir captura (HU-04) | Pendiente |
 
 ---
 
@@ -225,3 +236,9 @@ cd blockcraft-builder
 
 ---
 
+## 👤 Autor
+
+**Ronald Alexander Cacuango Cedillo**
+Universidad Central del Ecuador
+Ingeniería en Ciencias de la Computación
+GitHub: [@RonaldC1797](https://github.com/RonaldC1797)
