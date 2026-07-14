@@ -33,8 +33,10 @@ class BlockcraftApp : Application() {
     override fun onCreate() {
         super.onCreate()
         crearCanalesDeNotificacion()
-        programarRecordatorio()
-        poblarTiposDeBloque()  // ← agregar
+        Thread {
+            programarRecordatorio()
+            poblarTiposDeBloque()
+        }.start()
     }
 
 

@@ -16,7 +16,7 @@
     <color name="background_chip">#E8E8E8</color>
     <!-- Textos -->
     <color name="text_primary">#333333</color>
-    <color name="text_secondary">#888888</color>
+    <color name="text_secondary">#555555</color>
     <color name="text_muted">#AAAAAA</color>
 
     <!-- Estados -->

@@ -262,8 +262,13 @@ class MainActivity : AppCompatActivity() {
             goToLogin()
         }
 
-        btnNotifications.setOnClickListener {
-            Toast.makeText(this, "Notificaciones", Toast.LENGTH_SHORT).show()
+        // Botón de notificación para exposición
+        btnNotifications.setOnLongClickListener {
+            val solicitud = androidx.work.OneTimeWorkRequestBuilder<RecordatorioWorker>()
+                .build()
+            androidx.work.WorkManager.getInstance(this).enqueue(solicitud)
+            Toast.makeText(this, "📱 Notificación enviada", Toast.LENGTH_SHORT).show()
+            true
         }
 
         btnNewWorld.setOnClickListener {

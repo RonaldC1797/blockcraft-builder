@@ -54,6 +54,9 @@ class IsometricView @JvmOverloads constructor(
     private var lastAngle = 0f
     private var initialFingerDistance = 0f
 
+    private val screenResult = FloatArray(2)
+
+
     // Agregar variables al inicio de la clase
     private var hoverCol = -1
     private var hoverFila = -1
@@ -189,18 +192,23 @@ class IsometricView @JvmOverloads constructor(
         val orden = generarOrdenDibujo()
 
         for ((fila, col) in orden) {
-            val (sx, sy) = toScreen(col, fila, 0)
+            // ✅ Ya correcto
+            val result = toScreen(col, fila, 0)
+            val sx = result[0]
+            val sy = result[1]
 
             if (sx < -BLOCK_WIDTH * 2 || sx > width + BLOCK_WIDTH * 2) continue
             if (sy < -BLOCK_HEIGHT * (MAX_HEIGHT + 2) || sy > height + BLOCK_HEIGHT * 2) continue
 
             dibujarCeldaBase(canvas, sx, sy)
 
-            // ✅ Highlight de la celda seleccionada
+            // ✅ CORREGIDO — hover
             if (col == hoverCol && fila == hoverFila) {
                 val pila = bloques[fila][col]
                 val alturaHover = pila.size
-                val (hsx, hsy) = toScreen(col, fila, alturaHover)
+                val hResult = toScreen(col, fila, alturaHover)
+                val hsx = hResult[0]
+                val hsy = hResult[1]
                 val path = celdaPath(hsx, hsy)
                 canvas.drawPath(path, paintHover)
                 canvas.drawPath(path, paintHoverBorder)
@@ -209,13 +217,15 @@ class IsometricView @JvmOverloads constructor(
             val pila = bloques[fila][col]
             for (altura in pila.indices) {
                 val tipo = pila[altura]
-                if (tipo.isEmpty()) continue  // ← AGREGAR esta línea
-                val (bsx, bsy) = toScreen(col, fila, altura)
+                if (tipo.isEmpty()) continue
+                // ✅ CORREGIDO — bloques
+                val bResult = toScreen(col, fila, altura)
+                val bsx = bResult[0]
+                val bsy = bResult[1]
                 dibujarBloque(canvas, bsx, bsy, tipo)
             }
         }
     }
-
     // Genera el orden de dibujo según el ángulo de rotación
     private fun generarOrdenDibujo(): List<Pair<Int, Int>> {
         val celdas = mutableListOf<Pair<Int, Int>>()
@@ -298,7 +308,7 @@ class IsometricView @JvmOverloads constructor(
     }
 
     // ===== COORDENADAS CON ROTACIÓN y ZOOM =====
-    private fun toScreen(col: Int, fila: Int, altura: Int): Pair<Float, Float> {
+    private fun toScreen(col: Int, fila: Int, altura: Int): FloatArray {
         val cx = col - GRID_SIZE / 2f
         val cz = fila - GRID_SIZE / 2f
 
@@ -307,14 +317,17 @@ class IsometricView @JvmOverloads constructor(
         val rz = cx * sin(rotacion) + cz * cos(rotacion)
 
         // Proyección isométrica con zoom aplicado
-        val bw = BLOCK_WIDTH * zoom   // ← ancho con zoom
-        val bh = BLOCK_HEIGHT * zoom  // ← alto con zoom
-        val bd = BLOCK_DEPTH * zoom   // ← profundidad con zoom
+        val bw = BLOCK_WIDTH * zoom
+        val bh = BLOCK_HEIGHT * zoom
+        val bd = BLOCK_DEPTH * zoom
 
         val sx = cameraX + rx * (bw / 2) - rz * (bw / 2)
         val sy = cameraY + rx * (bh / 2) + rz * (bh / 2) - altura * bd
 
-        return Pair(sx - bw / 2, sy - bh / 2)
+        // ✅ Reutiliza el mismo objeto en lugar de crear Pair nuevo cada vez
+        screenResult[0] = sx - bw / 2
+        screenResult[1] = sy - bh / 2
+        return screenResult
     }
 
     private fun toGrid(touchX: Float, touchY: Float): Pair<Int, Int> {
